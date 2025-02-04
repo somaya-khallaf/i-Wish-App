@@ -31,4 +31,7 @@ values ('olivia_walker', 'william hall sent you a friend request.', to_date('202
 insert into notifications (receiver_name, notification_content, notification_date)
 values ('mia_johnson', 'david adams sent you a friend request.', to_date('2024-12-01 15:10:05', 'YYYY-MM-DD HH24:MI:SS'));
 
+insert into notifications (receiver_name, notification_content, notification_date)
+values ('david_adams', 'mia johnson accepted your friend request.', to_date('2024-12-01 20:10:15', 'YYYY-MM-DD HH24:MI:SS'));
+
 commit;
