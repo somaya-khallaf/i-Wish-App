@@ -21,18 +21,20 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dto.LoginDTO;
 import static javafx.application.Application.launch;
-    
+
 /**
  *
  * @author helloss
  */
 public class Client extends Application {
-    
+
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("FXMLDocument.fxml"));
-        
-        Scene scene = new Scene(root);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("FXMLDocument.fxml"));
+        ServerConnection serverConnection = new ServerConnection();
+        FXMLDocumentController fxmlDocumentController = new FXMLDocumentController(serverConnection);
+        loader.setController(fxmlDocumentController);
+        Scene scene = new Scene(loader.load());
         stage.setScene(scene);
         stage.show();
     }
@@ -41,36 +43,5 @@ public class Client extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-    
-}
-/*
-public class Client extends Application {
-    
-    @Override
-    public void start(Stage stage) throws Exception {
 
-    }
-    
-
-    public static void main(String[] args) {
-       
-        try {
-            Socket mySocket =  new Socket("127.0.0.1", 5005);
-            PrintWriter writer = new PrintWriter(mySocket.getOutputStream(), true);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
-            Gson gson = new Gson();
-            logInDTO loginData = new logInDTO("mohamed", "123");
-            JsonObject jsonObject = gson.toJsonTree(loginData).getAsJsonObject();
-            
-            System.out.println(jsonObject);
-            jsonObject.addProperty("command", "login");
-            String jsonString = gson.toJson(jsonObject);
-            writer.println(jsonString);
-        
-        } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
 }
-*/

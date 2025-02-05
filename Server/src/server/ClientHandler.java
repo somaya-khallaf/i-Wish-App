@@ -22,10 +22,14 @@ import entities.User;
 import sl.*;
 
 public class ClientHandler extends Thread {
-    String userName;
-    PrintWriter writer;
-    BufferedReader reader;
-    Socket socket;
+
+    private String userName;
+    private PrintWriter writer;
+    private BufferedReader reader;
+    private Socket socket;
+    private Gson gson = new Gson();
+    private JsonObject jsonObject;
+
     public ClientHandler(Socket socket) {
         try {
             this.socket = socket;
@@ -36,13 +40,12 @@ public class ClientHandler extends Thread {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public void run() {
         while (true) {
-            try   {
-                     
-                String jsonString = reader.readLine();                     
-                JsonObject jsonObject = JsonParser.parseString(jsonString).getAsJsonObject();
+            try {
+                String jsonString = reader.readLine();
+                jsonObject = JsonParser.parseString(jsonString).getAsJsonObject();
                 handleCommand(jsonObject);
             } catch (IOException ex) {
                 try {
@@ -52,143 +55,150 @@ public class ClientHandler extends Thread {
                 } catch (IOException ex1) {
                     Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex1);
                 }
-            } 
+            }
         }
     }
+
     public void handleCommand(JsonObject jsonObject) {
         String command = jsonObject.get("command").getAsString();
-        if (command.equals("login"))
+        if (command.equals("login")) {
             handleLogIn(jsonObject);
-        else if (command.equals("register"))
+        } else if (command.equals("getHomePage")) {
+            handleHomePage();
+        } else if (command.equals("register")) {
             handleRegister(jsonObject);
-        else if (command.equals("getProductlist"))
+        } else if (command.equals("getProductlist")) {
             handleProductList();
-        else if (command.equals("addWish"))
+        } else if (command.equals("addWish")) {
             handleAddingWish(jsonObject);
-        else if (command.equals("removeWish"))
+        } else if (command.equals("removeWish")) {
             handleRemovingWish(jsonObject);
-        else if (command.equals("getFriendRequestList"))
+        } else if (command.equals("getFriendRequestList")) {
             handleFriendRequestList();
-        else if (command.equals("acceptFriendRequest"))
+        } else if (command.equals("acceptFriendRequest")) {
             handleAcceptingFriendRequest(jsonObject);
-        else if (command.equals("rejectFriendRequest"))
+        } else if (command.equals("rejectFriendRequest")) {
             handleRejectingFriendRequest(jsonObject);
-        else if (command.equals("getFriendList"))
+        } else if (command.equals("getFriendList")) {
             handleFriendList(jsonObject);
-        else if (command.equals("getFriendWishList"))
+        } else if (command.equals("getFriendWishList")) {
             handleFriendWishList(jsonObject);
-        else if (command.equals("removeFriend"))
+        } else if (command.equals("removeFriend")) {
             handleRemovingFriend(jsonObject);
-        else if (command.equals("addFriend"))
+        } else if (command.equals("addFriend")) {
             handleAddingFriend();
-
+        }
 
     }
-    private HomePageDTO handleHomePage(String userName){
+
+    private void handleHomePage() {
         try {
-            UserDTO userData = UserSL.getUserData(userName);
+            HomeUserDTO userData = UserSL.getUserData(userName);
             ArrayList<WishDTO> wishList = WishSL.getWishList(userName);
             ArrayList<NotificationDTO> NotificationList = NotificationSL.getNotificationList(userName);
+            HomePageDTO homePage = new HomePageDTO(userData, wishList, NotificationList);
+            jsonObject = gson.toJsonTree(homePage).getAsJsonObject();
+            String jsonString = gson.toJson(jsonObject);
+            writer.println(jsonString);
         } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
-            return new HomePageDTO(null, new ArrayList<>(), new ArrayList<>());
-        }
-    private void handleLogIn(JsonObject jsonObject){
-        Gson gson = new Gson();
+    }
+
+    private void handleLogIn(JsonObject jsonObject) {
         LoginDTO loginData = gson.fromJson(jsonObject, LoginDTO.class);
+
+        System.out.println(loginData);
         jsonObject = new JsonObject();
-        try{
-            if(UserSL.logIn(loginData)){
+        try {
+            if (UserSL.logIn(loginData)) {
                 userName = loginData.getUsername();
-                //HomePageDTO homePage = handleHomePage(loginData.getUsername());
-                //jsonObject = gson.toJsonTree(homePage).getAsJsonObject();
                 jsonObject.addProperty("Result", "succeed");
                 String jsonResult = gson.toJson(jsonObject);
-                writer.println(jsonResult);   
-            }
-            else { 
+                writer.println(jsonResult);
+            } else {
                 jsonObject.addProperty("Result", "failed");
                 String jsonResult = gson.toJson(jsonObject);
-                writer.println(jsonResult);   
+                writer.println(jsonResult);
 
             }
-        } 
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
-    private void handleRegister(JsonObject jsonObject){
+
+    private void handleRegister(JsonObject jsonObject) {
         Gson gson = new Gson();
         User userData = gson.fromJson(jsonObject, User.class);
         try {
             UserSL.register(userData);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     private void handleProductList() {
         try {
             ProductSL.getAllProducts();
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    private void handleAddingWish(JsonObject jsonObject){
+
+    private void handleAddingWish(JsonObject jsonObject) {
         int productId = jsonObject.get("productId").getAsInt();
-        try{
+        try {
             WishSL.addWish(productId, userName);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    private void handleRemovingWish(JsonObject jsonObject){
+
+    private void handleRemovingWish(JsonObject jsonObject) {
         int productId = jsonObject.get("productId").getAsInt();
-        try{
+        try {
             WishSL.removeWish(productId, userName);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private void handleFriendRequestList() {
+        try {
+            FriendRequestSL.getFriendRequestList(userName);
+        } catch (SQLException ex) {
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
-    private void handleFriendRequestList(){
-            try{
-                FriendRequestSL.getFriendRequestList(userName);
-            }
-            catch (SQLException ex) {
-                Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    private void handleAcceptingFriendRequest(JsonObject jsonObject){
+    }
+
+    private void handleAcceptingFriendRequest(JsonObject jsonObject) {
         String friendUserName = jsonObject.get("friendUserName").getAsString();
         try {
             FriendRequestSL.acceptFriendRequest(friendUserName, userName);
         } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
-        }
-    private void handleRejectingFriendRequest(JsonObject jsonObject){
+    }
+
+    private void handleRejectingFriendRequest(JsonObject jsonObject) {
         String friendUserName = jsonObject.get("friendUserName").getAsString();
 
-        try{
+        try {
             FriendRequestSL.rejectFriendRequest(friendUserName, userName);
-        }
-        catch (SQLException ex) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        }
-    private void handleFriendList(JsonObject jsonObject){
-        try{
-            FriendSL.getFriendList(userName);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    private void handleFriendList(JsonObject jsonObject) {
+        try {
+            FriendSL.getFriendList(userName);
+        } catch (SQLException ex) {
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     private void handleFriendWishList(JsonObject jsonObject) {
         String friendUserName = jsonObject.get("friendUserName").getAsString();
         try {
@@ -197,7 +207,8 @@ public class ClientHandler extends Thread {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    private void handleRemovingFriend(JsonObject jsonObject){
+
+    private void handleRemovingFriend(JsonObject jsonObject) {
         String friendUserName = jsonObject.get("friendUserName").getAsString();
         try {
             FriendSL.removeFriend(friendUserName, userName);
@@ -205,5 +216,8 @@ public class ClientHandler extends Thread {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    private void handleAddingFriend(){}
+
+    private void handleAddingFriend() {
+    }
+
 }
