@@ -168,8 +168,12 @@ public class ClientHandler extends Thread {
         JsonObject jsonObject = new JsonObject();
         try {
             ArrayList<FriendDTO> requests = FriendRequestSL.getFriendRequestList(userName);
-            jsonObject.addProperty("Result", "succeed");
-            jsonObject.add("requests", gson.toJsonTree(requests));
+            if (requests == null || requests.isEmpty()) {
+                jsonObject.addProperty("Result", "failed");
+            } else {
+                jsonObject.addProperty("Result", "succeed");
+                jsonObject.add("requests", gson.toJsonTree(requests));
+            }
         } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
             jsonObject.addProperty("Result", "failed");
