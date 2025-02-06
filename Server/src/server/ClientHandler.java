@@ -223,22 +223,40 @@ public class ClientHandler extends Thread {
     }
 
     private void handleAcceptingFriendRequest(JsonObject jsonObject) {
-        String friendUserName = jsonObject.get("friendUserName").getAsString();
+         String friendUserName = jsonObject.get("friendUserName").getAsString();
         try {
-            FriendRequestSL.acceptFriendRequest(friendUserName, userName);
+            int result = FriendRequestSL.acceptFriendRequest(friendUserName, userName);
+            jsonObject = new JsonObject();
+            if (result > 0) {
+                jsonObject.addProperty("Result", "succeed");
+            } else {
+                jsonObject.addProperty("Result", "failed");
+            }
         } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+            jsonObject.addProperty("Result", "failed");
         }
+        String jsonString = gson.toJson(jsonObject);
+        writer.println(jsonString);
     }
 
     private void handleRejectingFriendRequest(JsonObject jsonObject) {
         String friendUserName = jsonObject.get("friendUserName").getAsString();
-
         try {
-            FriendRequestSL.rejectFriendRequest(friendUserName, userName);
+            int result = FriendRequestSL.rejectFriendRequest(friendUserName, userName);
+            jsonObject = new JsonObject();
+            if (result > 0) {
+                jsonObject.addProperty("Result", "succeed");
+            } else {
+                jsonObject.addProperty("Result", "failed");
+            }
+
         } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+            jsonObject.addProperty("Result", "failed");
         }
+        String jsonString = gson.toJson(jsonObject);
+        writer.println(jsonString);
     }
 
     private void handleFriendList(JsonObject jsonObject) {
