@@ -1,8 +1,9 @@
 package sl;
 
+import dal.FriendRequestDAO;
 import dto.FriendDTO;
 import dto.UserDTO;
-import dal.FriendRequestDAO;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 

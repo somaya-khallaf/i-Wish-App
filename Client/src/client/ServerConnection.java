@@ -16,29 +16,42 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ *
+ * @author Ahmed
+ */
 public class ServerConnection {
 
     PrintWriter writer;
-    BufferedReader reader;
-    Socket mySocket;
+    BufferedReader reader, notificationReader;
+    Socket mySocket, notificationSocket;
     JsonObject jsonObject;
     Gson gson;
 
     public ServerConnection() {
         try {
             mySocket = new Socket("127.0.0.1", 5005);
+            notificationSocket = new Socket("127.0.0.1", 5000);
+            notificationReader = new BufferedReader(new InputStreamReader(notificationSocket.getInputStream()));
             writer = new PrintWriter(mySocket.getOutputStream(), true);
             reader = new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
             gson = new Gson();
         } catch (IOException ex) {
-            Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+            try {
+                reader.close();
+                writer.close();
+                mySocket.close();
+            } catch (IOException ex1) {
+                Logger.getLogger(ServerConnection.class.getName()).log(Level.SEVERE, null, ex1);
+            }
         }
     }
-    public JsonObject sendRequest(String command, Object data) throws IOException{
+
+    public JsonObject sendRequest(String command, Object data) throws IOException {
         jsonObject = new JsonObject();
-        if (data!= null)
-            jsonObject = gson.toJsonTree(data).getAsJsonObject();
+        if (data != null) {
+            jsonObject.add("data", gson.toJsonTree(data));
+        }
         jsonObject.addProperty("command", command);
         String jsonString = gson.toJson(jsonObject);
         writer.println(jsonString);
@@ -46,4 +59,21 @@ public class ServerConnection {
         jsonObject = JsonParser.parseString(jsonResponse).getAsJsonObject();
         return jsonObject;
     }
+
+    public JsonObject getNotifications() {
+        jsonObject = new JsonObject();
+        try {
+            String jsonResponse = notificationReader.readLine();
+            jsonObject = JsonParser.parseString(jsonResponse).getAsJsonObject();
+        } catch (IOException ex) {
+            try {
+                notificationReader.close();
+                notificationSocket.close();
+            } catch (IOException ex1) {
+                Logger.getLogger(ServerConnection.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+        }
+        return jsonObject;
+    }
+
 }

@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="524.0" prefWidth="853.0" stylesheets="@fxml.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane prefHeight="524.0" prefWidth="853.0" stylesheets="@/css/HomeDocument.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
 
     <BorderPane>
         <!-- Left Profile Section -->
@@ -40,11 +40,11 @@
 
                         <!-- Friend Controls -->
                         <VBox spacing="10" styleClass="friend-controls">
-                            <Button fx:id="friendsButton" prefHeight="46.0" prefWidth="114.0" styleClass="holographic-button" text="👥 Friends" />
+                            <Button fx:id="friendsButton"  onAction="#handleFriendsButton" prefHeight="46.0" prefWidth="114.0" styleClass="holographic-button" text="👥 Friends" />
                             <Button fx:id="addFriendButton" prefHeight="47.0" prefWidth="113.0" styleClass="holographic-button" text="➕ Add" />
                             <AnchorPane>
                                 <children>
-                                    <Button fx:id="requestsButton" prefHeight="43.0" prefWidth="116.0" styleClass="holographic-button" text="📥 Requests" />
+                                    <Button fx:id="requestsButton" onAction="#handleRequestsButton" prefHeight="43.0" prefWidth="116.0" styleClass="holographic-button" text="📥 Requests" />
                                 </children>
                             </AnchorPane>
                         </VBox>
@@ -73,7 +73,7 @@
                         <children>
 
                             <!-- Wishlist Card -->
-                            <VBox layoutY="14.0" prefHeight="484.0" prefWidth="367.0" styleClass="content-card">
+                            <VBox  layoutY="14.0" prefHeight="484.0" prefWidth="367.0" styleClass="content-card">
                                 <AnchorPane>
                                     <children>
                                         <HBox layoutX="10.0" layoutY="10.0" prefHeight="66.0" prefWidth="132.0">
@@ -100,49 +100,14 @@
                                         <children>
                                             <AnchorPane prefHeight="160.0" prefWidth="300.0">
                                                 <children>
-                                                    <VBox prefHeight="149.0" prefWidth="313.0" spacing="10" styleClass="wishlist-items">
+                                                    <VBox fx:id="WishListVBox" prefHeight="149.0" prefWidth="313.0" spacing="10" styleClass="wishlist-items">
                                                         <AnchorPane>
                                                             <children>
-                                                                <!-- Wishlist Items with Delete Icons -->
-                                                                <HBox fx:id="wishContainer" prefHeight="41.0" prefWidth="366.0" spacing="10" styleClass="wish-item">
-                                                                    <CheckBox fx:id="checkBox" styleClass="fancy-checkbox" />
-                                                                    <Label fx:id="itemLabel" text="4K Gaming Monitor" />
-                                                                    <AnchorPane />
-                                                                    <Label fx:id="status" prefHeight="17.0" prefWidth="81.0" styleClass="completed-label" text="Completed">
-                                                                        <HBox.margin>
-                                                                            <Insets left="65.0" />
-                                                                        </HBox.margin>
-                                                                    </Label>
-                                                                </HBox>
+
                                                             </children>
                                                         </AnchorPane>
                                                         <AnchorPane />
-                                                        <AnchorPane prefHeight="74.0" prefWidth="277.0">
-                                                            <children>
-                                                                <AnchorPane layoutY="31.0">
-                                                                    <children>
-                                                                        <HBox layoutY="2.0" prefHeight="43.0" prefWidth="314.0" spacing="10" styleClass="wish-item">
-                                                                            <CheckBox styleClass="fancy-checkbox" />
-                                                                            <Label text="VR Headset" />
-                                                                            <Label prefHeight="17.0" prefWidth="91.0" styleClass="not-completed-label" text="Not Completed">
-                                                                                <HBox.margin>
-                                                                                    <Insets left="110.0" />
-                                                                                </HBox.margin>
-                                                                            </Label>
-                                                                        </HBox>
-                                                                    </children>
-                                                                </AnchorPane>
-                                                                <HBox layoutY="-14.0" prefHeight="43.0" prefWidth="314.0" spacing="10" styleClass="wish-item">
-                                                                    <CheckBox styleClass="fancy-checkbox" />
-                                                                    <Label text="Wireless Mechanical Keyboard" />
-                                                                    <Label prefHeight="17.0" prefWidth="118.0" styleClass="completed-label" text="Completed">
-                                                                        <HBox.margin>
-                                                                            <Insets left="60.0" />
-                                                                        </HBox.margin>
-                                                                    </Label>
-                                                                </HBox>
-                                                            </children>
-                                                        </AnchorPane>
+
                                                     </VBox>
                                                 </children>
                                                 <padding>
@@ -159,7 +124,7 @@
                     </AnchorPane>
 
                     <!-- Notifications Card -->
-                    <VBox prefHeight="514.0" prefWidth="353.0" spacing="80.0" styleClass="content-card" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                    <VBox fx:id="notificationVBox" prefHeight="514.0" prefWidth="353.0" spacing="80.0" styleClass="content-card" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
                         <AnchorPane prefHeight="86.0" prefWidth="242.0">
                             <children>
                                 <AnchorPane prefHeight="86.0" prefWidth="220.0">
@@ -172,12 +137,10 @@
                                 <Insets />
                             </VBox.margin>
                         </AnchorPane>
-                        <ScrollPane prefHeight="311.0" prefWidth="217.0" styleClass="modern-scroll">
+                        <ScrollPane fx:id="scrollPane" prefHeight="311.0" prefWidth="217.0" styleClass="modern-scroll">
                             <AnchorPane prefHeight="318.0" prefWidth="232.0">
                                 <ListView fx:id="notificationListView" editable="true" prefHeight="318.0" prefWidth="242.0" styleClass="notification-list">
-                                    <Label fx:id="notoficationLabel" prefHeight="34.0" prefWidth="143.0" text="⭐ New friend request from User123" />
-                                    <Label prefHeight="34.0" prefWidth="154.0" text="🎉 You earned 50 points!" />
-                                    <Label prefHeight="37.0" prefWidth="160.0" text="📦 Wishlist item '4K Monitor' on sale" />
+
                                 </ListView>
                                 <cursor>
                                 </cursor>

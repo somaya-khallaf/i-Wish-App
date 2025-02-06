@@ -1,6 +1,7 @@
 package server;
 
 import dto.*;
+import dto.HomePageDTO;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,20 +20,26 @@ import java.net.ServerSocket;
 import java.sql.SQLException;
 
 import entities.User;
+import java.time.LocalDate;
+import java.util.Vector;
 import sl.*;
 
 public class ClientHandler extends Thread {
 
     private String userName;
-    private PrintWriter writer;
-    private BufferedReader reader;
-    private Socket socket;
+    private PrintWriter writer, notificationWriter;
+    private BufferedReader reader, notificationReader;
+    private Socket socket, notificationSocket;
     private Gson gson = new Gson();
     private JsonObject jsonObject;
-
-    public ClientHandler(Socket socket) {
+    private boolean homePageFlag = false;
+    static Vector<NotificationData> clients = new Vector<NotificationData>();
+    public ClientHandler(Socket socket, Socket notificationSocket) {
         try {
             this.socket = socket;
+            this.notificationSocket = notificationSocket;
+            notificationWriter = new PrintWriter(notificationSocket.getOutputStream(), true);
+            notificationReader = new BufferedReader(new InputStreamReader(notificationSocket.getInputStream()));
             writer = new PrintWriter(socket.getOutputStream(), true);
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             start();
@@ -52,6 +59,9 @@ public class ClientHandler extends Thread {
                     reader.close();
                     writer.close();
                     socket.close();
+                    notificationWriter.close();
+                    notificationSocket.close();
+                    stop();
                 } catch (IOException ex1) {
                     Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex1);
                 }
@@ -90,9 +100,33 @@ public class ClientHandler extends Thread {
         }
 
     }
+    private void handleAddingNotification(String receiverName, String notificationContent){
+        NotificationDTO notification = new NotificationDTO(notificationContent, LocalDate.now());
+        jsonObject = gson.toJsonTree(notification).getAsJsonObject();
+        String jsonString = gson.toJson(jsonObject);
+        for (NotificationData cl: clients){
+            if (cl.getUserName() == receiverName){
+                cl.getNotificationWriter().println(jsonString);
+                break;
+            }
+        }
+        try {
+            NotificationSL.addNotification(receiverName, notification);
+        } catch (SQLException ex) {
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+        try {
+            NotificationSL.addNotification(receiverName, notification);
+        } catch (SQLException ex) {
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     private void handleHomePage() {
         try {
+            handleAddingNotification(userName, "test");
             HomeUserDTO userData = UserSL.getUserData(userName);
             ArrayList<WishDTO> wishList = WishSL.getWishList(userName);
             ArrayList<NotificationDTO> NotificationList = NotificationSL.getNotificationList(userName);
@@ -100,6 +134,7 @@ public class ClientHandler extends Thread {
             jsonObject = gson.toJsonTree(homePage).getAsJsonObject();
             String jsonString = gson.toJson(jsonObject);
             writer.println(jsonString);
+
         } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -109,19 +144,19 @@ public class ClientHandler extends Thread {
         LoginDTO loginData = gson.fromJson(jsonObject, LoginDTO.class);
 
         System.out.println(loginData);
+
         jsonObject = new JsonObject();
         try {
             if (UserSL.logIn(loginData)) {
                 userName = loginData.getUsername();
+                clients.add(new NotificationData(userName, notificationWriter, notificationSocket));
                 jsonObject.addProperty("Result", "succeed");
-                String jsonResult = gson.toJson(jsonObject);
-                writer.println(jsonResult);
+
             } else {
                 jsonObject.addProperty("Result", "failed");
-                String jsonResult = gson.toJson(jsonObject);
-                writer.println(jsonResult);
-
             }
+            String jsonResult =  gson.toJson(jsonObject);;
+            writer.println(jsonResult);
         } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -156,12 +191,17 @@ public class ClientHandler extends Thread {
     }
 
     private void handleRemovingWish(JsonObject jsonObject) {
-        int productId = jsonObject.get("productId").getAsInt();
+        Integer[] productId = gson.fromJson(jsonObject.get("data"), Integer[].class);
+        System.out.println(productId[0]);
         try {
             WishSL.removeWish(productId, userName);
         } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
+        jsonObject = new JsonObject();
+        jsonObject.addProperty("Result", "succeed");
+        String jsonString = gson.toJson(jsonObject);
+        writer.println(jsonString);
     }
 
     private void handleFriendRequestList() {

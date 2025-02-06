@@ -22,11 +22,12 @@ import oracle.jdbc.OracleDriver;
  */
 public class UserDAO {
 
+
     static public String getPassword(String userName) throws SQLException{
         Database db = new Database();
         Connection con = db.getConnection();
         PreparedStatement stmt  = con.prepareStatement("select password from users where username = ?");
-       stmt.setString(1, userName);
+        stmt.setString(1, userName);
         ResultSet rs = stmt.executeQuery();
         String password= null;
         if (rs.next()) {
@@ -42,19 +43,16 @@ public class UserDAO {
     static public HomeUserDTO getHomeUser(String userName) throws SQLException {
         Database db = new Database();
         Connection con = db.getConnection();
-        PreparedStatement stmt  = con.prepareStatement("select username, fullName, balance from users where username = ?");
+        PreparedStatement stmt  = con.prepareStatement("select username, full_name, balance from users where username = ?");
         stmt.setString(1, userName);
         ResultSet rs = stmt.executeQuery();
-        HomeUserDTO user = null;
+        HomeUserDTO homeUserData = null;
         if (rs.next()) {
-            user = new HomeUserDTO( rs.getString("username"),  rs.getString("fullName"), rs.getDouble("balance"));
+            homeUserData = new HomeUserDTO( rs.getString("username"),  rs.getString("full_name"), rs.getDouble("balance"));
         }
         db.close();
         stmt.close();
-        return user;
+        return homeUserData;
     }
     static public int updateBalance(String userName) throws SQLException {return 0;}
-
-
-
 }

@@ -22,7 +22,7 @@ import javafx.scene.control.Label;
 public class FXMLDocumentController implements Initializable {
 
     Thread thread;
-    ServerSocket myServerSocket;
+    ServerSocket myServerSocket, notificationServerSocket;
     boolean firstRun = false;
     @FXML
     private Button btStart;
@@ -33,6 +33,7 @@ public class FXMLDocumentController implements Initializable {
         if (!firstRun) {
             try {
                 myServerSocket = new ServerSocket(5005);
+                notificationServerSocket = new ServerSocket(5000);
                 thread.start();
                 firstRun = true;
             } catch (IOException ex) {
@@ -47,7 +48,7 @@ public class FXMLDocumentController implements Initializable {
     }
 
 
- 
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         thread = new Thread(new Runnable() {
@@ -55,7 +56,9 @@ public class FXMLDocumentController implements Initializable {
                 while (true) {
                     try {
                         Socket socket = myServerSocket.accept();
-                        new ClientHandler(socket);
+                        Socket notificationSocket = notificationServerSocket.accept();
+                        System.out.println(notificationSocket.getOutputStream());
+                        new ClientHandler(socket, notificationSocket);
                     } catch (IOException ex) {
                         Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
                     }
