@@ -165,11 +165,17 @@ public class ClientHandler extends Thread {
     }
 
     private void handleFriendRequestList() {
+        JsonObject jsonObject = new JsonObject();
         try {
-            FriendRequestSL.getFriendRequestList(userName);
+            ArrayList<FriendDTO> requests = FriendRequestSL.getFriendRequestList(userName);
+            jsonObject.addProperty("Result", "succeed");
+            jsonObject.add("requests", gson.toJsonTree(requests));
         } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+            jsonObject.addProperty("Result", "failed");
         }
+        String jsonString = gson.toJson(jsonObject);
+        writer.println(jsonString);
     }
 
     private void handleAcceptingFriendRequest(JsonObject jsonObject) {
