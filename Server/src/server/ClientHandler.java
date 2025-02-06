@@ -117,13 +117,6 @@ public class ClientHandler extends Thread {
         }
     }
 
-        try {
-            NotificationSL.addNotification(receiverName, notification);
-        } catch (SQLException ex) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
     private void handleHomePage() {
         try {
             handleAddingNotification(userName, "test");
@@ -141,15 +134,16 @@ public class ClientHandler extends Thread {
     }
 
     private void handleLogIn(JsonObject jsonObject) {
-        LoginDTO loginData = gson.fromJson(jsonObject, LoginDTO.class);
+        LoginDTO loginData = gson.fromJson(jsonObject.get("data"), LoginDTO.class);
 
-        System.out.println(loginData);
+        System.out.println(loginData.getUsername());
 
         jsonObject = new JsonObject();
         try {
             if (UserSL.logIn(loginData)) {
                 userName = loginData.getUsername();
                 clients.add(new NotificationData(userName, notificationWriter, notificationSocket));
+                System.out.println(userName);
                 jsonObject.addProperty("Result", "succeed");
 
             } else {
@@ -165,7 +159,7 @@ public class ClientHandler extends Thread {
 
     private void handleRegister(JsonObject jsonObject) {
         Gson gson = new Gson();
-        User userData = gson.fromJson(jsonObject, User.class);
+        User userData = gson.fromJson(jsonObject.get("data"), User.class);
         try {
             UserSL.register(userData);
         } catch (SQLException ex) {
@@ -189,7 +183,7 @@ public class ClientHandler extends Thread {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    //
     private void handleRemovingWish(JsonObject jsonObject) {
         Integer[] productId = gson.fromJson(jsonObject.get("data"), Integer[].class);
         System.out.println(productId[0]);
@@ -223,7 +217,7 @@ public class ClientHandler extends Thread {
     }
 
     private void handleAcceptingFriendRequest(JsonObject jsonObject) {
-         String friendUserName = jsonObject.get("friendUserName").getAsString();
+        String friendUserName = jsonObject.get("friendUserName").getAsString();
         try {
             int result = FriendRequestSL.acceptFriendRequest(friendUserName, userName);
             jsonObject = new JsonObject();
