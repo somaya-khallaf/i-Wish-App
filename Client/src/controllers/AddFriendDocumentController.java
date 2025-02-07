@@ -41,6 +41,22 @@ public class AddFriendDocumentController implements Initializable {
     @FXML
     private void handleBackAction(ActionEvent event) {
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
    public static class Friend {
 
         private String name;

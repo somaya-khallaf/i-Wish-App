@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
@@ -16,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="524.0" prefWidth="853.0" stylesheets="@/css/HomeDocument.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane prefHeight="524.0" prefWidth="853.0" stylesheets="@/css/HomeDocument.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
 
     <BorderPane>
         <!-- Left Profile Section -->
@@ -40,8 +39,8 @@
 
                         <!-- Friend Controls -->
                         <VBox spacing="10" styleClass="friend-controls">
-                            <Button fx:id="friendsButton"  onAction="#handleFriendsButton" prefHeight="46.0" prefWidth="114.0" styleClass="holographic-button" text="👥 Friends" />
-                            <Button fx:id="addFriendButton" prefHeight="47.0" prefWidth="113.0" styleClass="holographic-button" text="➕ Add" />
+                            <Button fx:id="friendsButton" onAction="#handleFriendsButton" prefHeight="46.0" prefWidth="114.0" styleClass="holographic-button" text="👥 Friends" />
+                            <Button fx:id="addFriendButton" onAction="#handleAddFriendButton" prefHeight="47.0" prefWidth="113.0" styleClass="holographic-button" text="➕ Add" />
                             <AnchorPane>
                                 <children>
                                     <Button fx:id="requestsButton" onAction="#handleRequestsButton" prefHeight="43.0" prefWidth="116.0" styleClass="holographic-button" text="📥 Requests" />
@@ -73,7 +72,7 @@
                         <children>
 
                             <!-- Wishlist Card -->
-                            <VBox  layoutY="14.0" prefHeight="484.0" prefWidth="367.0" styleClass="content-card">
+                            <VBox layoutY="14.0" prefHeight="484.0" prefWidth="367.0" styleClass="content-card">
                                 <AnchorPane>
                                     <children>
                                         <HBox layoutX="10.0" layoutY="10.0" prefHeight="66.0" prefWidth="132.0">
@@ -81,18 +80,8 @@
                                                 <Label prefHeight="60.0" prefWidth="128.0" styleClass="card-title" text="🎁 My Wishlist" />
                                             </children>
                                         </HBox>
-                                        <Label fx:id="delete" layoutX="239.0" layoutY="9.0" prefHeight="69.0" prefWidth="23.0" text="🗑" textFill="#bb5d5d">
-                                            <font>
-                                                <Font size="24.0" />
-                                            </font>
-                                        </Label>
-                                        <Label fx:id="insert" alignment="CENTER" contentDisplay="TOP" layoutX="186.0" layoutY="22.0" prefHeight="44.0" prefWidth="27.0" text="➕">
-                                            <cursor>
-                                            </cursor>
-                                            <font>
-                                                <Font size="24.0" />
-                                            </font>
-                                        </Label>
+                                        <Button fx:id="insertBt"  onAction="#handleInsertButton" layoutX="184.0" layoutY="28.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="37.0" text="➕" />
+                                        <Button fx:id="deleteBt" onAction="#handleDeleteButton" layoutX="233.0" layoutY="28.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="37.0" text="🗑" />
                                     </children>
                                 </AnchorPane>
                                 <ScrollPane prefHeight="149.0" prefWidth="297.0" styleClass="modern-scroll">
