@@ -20,11 +20,6 @@ public class HomeUserDTO {
         this.balance = balance;
     }
 
-    public HomeUserDTO() {
-        throw new UnsupportedOperationException("Not supported yet."); 
-    }
-
-
     public void setUsername(String username) {
         this.username = username;
     }
