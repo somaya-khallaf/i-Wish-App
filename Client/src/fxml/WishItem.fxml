@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.geometry.Insets?>
+
+<HBox fx:id="wishContainer" prefHeight="41.0" prefWidth="366.0" spacing="10" styleClass="wish-item"
+      xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+    <CheckBox fx:id="checkBox" styleClass="fancy-checkbox" />
+    <Label fx:id="itemLabel" text="Item Name" />
+    <AnchorPane />
+    <Label fx:id="status" prefHeight="17.0" prefWidth="81.0" styleClass="completed-label" text="Status">
+        <HBox.margin>
+            <Insets left="65.0" />
+        </HBox.margin>
+    </Label>
+</HBox>
