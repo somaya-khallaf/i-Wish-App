@@ -97,6 +97,8 @@ public class ClientHandler extends Thread {
             handleRemovingFriend(jsonObject);
         } else if (command.equals("addFriend")) {
             handleAddingFriend();
+        } else if (command.equals("getFriend")){
+            handleGettingFriend(jsonObject);
         }
 
     }
@@ -105,7 +107,7 @@ public class ClientHandler extends Thread {
         jsonObject = gson.toJsonTree(notification).getAsJsonObject();
         String jsonString = gson.toJson(jsonObject);
         for (NotificationData cl: clients){
-            if (cl.getUserName() == receiverName){
+            if (cl.getUserName().equals(receiverName)){
                 cl.getNotificationWriter().println(jsonString);
                 break;
             }
@@ -119,7 +121,6 @@ public class ClientHandler extends Thread {
 
     private void handleHomePage() {
         try {
-            handleAddingNotification(userName, "test");
             HomeUserDTO userData = UserSL.getUserData(userName);
             ArrayList<WishDTO> wishList = WishSL.getWishList(userName);
             ArrayList<NotificationDTO> NotificationList = NotificationSL.getNotificationList(userName);
@@ -280,6 +281,35 @@ public class ClientHandler extends Thread {
     }
 
     private void handleAddingFriend() {
+        try {
+            String friendName = gson.fromJson(jsonObject.get("data"), String.class);
+            FriendRequestSL.sendFriendRequest(friendName, userName);
+            jsonObject = new JsonObject();
+            jsonObject.addProperty("Result", "succeed");
+            handleAddingNotification(friendName, userName + " sent you a friend request.");
+        } catch (SQLException ex) {
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+            jsonObject.addProperty("Result", "failed");
+        }
+        String jsonString = gson.toJson(jsonObject);
+        writer.println(jsonString);
     }
 
-}
+    private void handleGettingFriend(JsonObject jsonObject){
+        try {
+            String friendName = gson.fromJson(jsonObject.get("data"), String.class);
+            ArrayList<FriendDTO> requests = FriendRequestSL.getFriend(friendName, userName);
+            jsonObject = new JsonObject();
+            if (requests == null || requests.isEmpty()) {
+                jsonObject.addProperty("Result", "failed");
+            } else {
+                jsonObject.addProperty("Result", "succeed");
+                jsonObject.add("requests", gson.toJsonTree(requests));
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+            jsonObject.addProperty("Result", "failed");
+        }
+        String jsonString = gson.toJson(jsonObject);
+        writer.println(jsonString);
+    }}

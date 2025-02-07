@@ -118,7 +118,7 @@ public class HomeDocumentController implements Initializable {
                 while (true) {
                     JsonObject jsonResponse = serverConnection.getNotifications();
                     NotificationDTO notification = gson.fromJson(jsonResponse, NotificationDTO.class);
-                    notificationListView.getItems().add(new Label("⭐" + notification.getNotificationContent() + notification.getNotificationDate()));
+                    notificationListView.getItems().add(0, new Label("⭐" + notification.getNotificationContent() + notification.getNotificationDate()));
                 }
             }
         });

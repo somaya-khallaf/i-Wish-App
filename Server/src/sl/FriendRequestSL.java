@@ -9,9 +9,17 @@ import java.util.ArrayList;
 
 public class FriendRequestSL {
 
-    static public int sendFriendRequest(String friend, String userName) throws SQLException {return 0;}
+    static public void sendFriendRequest(String friendUsername, String userName) throws SQLException {
+        FriendRequestDAO.sendFriendRequest(friendUsername, userName);
+    }
     static public int rejectFriendRequest(String friend, String userName)throws SQLException{return 0;}
     static public int acceptFriendRequest(String friend, String userName) throws SQLException {return 0;}
+    static public ArrayList<FriendDTO> getFriend(String friendName, String userName) throws SQLException {
+        if(friendName != null && !friendName.isEmpty() && userName != null && !userName.isEmpty()  )
+            return FriendRequestDAO.getFriend(friendName, userName);
+        return null;
+    }
+
     static public ArrayList<FriendDTO> getFriendRequestList(String user) throws SQLException {
         if(user != null && !user.isEmpty())
             return FriendRequestDAO.getAllFriendRequests(user);

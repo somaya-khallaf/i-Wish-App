@@ -119,11 +119,15 @@ public class FriendRequestController implements Initializable {
     }
 
     @FXML
-    private void handleBackAction(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/HomeDocument.fxml"));
-        HomeDocumentController fxmlDocumentController = new HomeDocumentController(serverConnection);
-        loader.setController(fxmlDocumentController);
-        Utils.moveToAntherScene(event, loader);
+    private void handleBackAction(ActionEvent event){
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/HomeDocument.fxml"));
+            HomeDocumentController fxmlDocumentController = new HomeDocumentController(serverConnection);
+            loader.setController(fxmlDocumentController);
+            Utils.moveToAntherScene(event, loader);
+        } catch (IOException ex) {
+            Logger.getLogger(FriendRequestController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void handleAccept(FriendDTO request) {

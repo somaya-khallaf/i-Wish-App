@@ -5,6 +5,7 @@
  */
 package controllers;
 
+import client.ServerConnection;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -19,7 +20,7 @@ import javafx.scene.control.TextField;
  * @author Ahmed
  */
 public class SignupDocumentController implements Initializable {
-    
+
     private Label label;
     @FXML
     private TextField tfFullName;
@@ -39,16 +40,20 @@ public class SignupDocumentController implements Initializable {
     private Button btCancel;
     @FXML
     private TextField tfUsername1;
-    
+    ServerConnection serverConnection;
+    public SignupDocumentController(ServerConnection serverConnection) {
+        this.serverConnection = serverConnection;
+    }
+
     private void handleButtonAction(ActionEvent event) {
         System.out.println("You clicked me!");
         label.setText("Hello World!");
     }
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
-    }    
+    }
 
     @FXML
     private void handleSignupButton(ActionEvent event) {
@@ -57,5 +62,5 @@ public class SignupDocumentController implements Initializable {
     @FXML
     private void handleCancelButton(ActionEvent event) {
     }
-    
+
 }
