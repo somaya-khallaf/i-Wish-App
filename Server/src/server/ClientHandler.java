@@ -199,15 +199,16 @@ public class ClientHandler extends Thread {
         writer.println(jsonString);
     }
 
-    private void handleFriendRequestList() {
-        JsonObject jsonObject = new JsonObject();
+    private void handleAcceptingFriendRequest(JsonObject jsonObject) {
+        JsonObject dataObject = jsonObject.get("data").getAsJsonObject();
+        String friendUserName = dataObject.get("friendUserName").getAsString();
         try {
-            ArrayList<FriendDTO> requests = FriendRequestSL.getFriendRequestList(userName);
-            if (requests == null || requests.isEmpty()) {
-                jsonObject.addProperty("Result", "failed");
-            } else {
+            int result = FriendRequestSL.acceptFriendRequest(friendUserName, userName);
+            jsonObject = new JsonObject();
+            if (result > 0) {
                 jsonObject.addProperty("Result", "succeed");
-                jsonObject.add("requests", gson.toJsonTree(requests));
+            } else {
+                jsonObject.addProperty("Result", "failed");
             }
         } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
@@ -217,16 +218,19 @@ public class ClientHandler extends Thread {
         writer.println(jsonString);
     }
 
-    private void handleAcceptingFriendRequest(JsonObject jsonObject) {
-        String friendUserName = jsonObject.get("friendUserName").getAsString();
+
+    private void handleRejectingFriendRequest(JsonObject jsonObject) {
+        JsonObject dataObject = jsonObject.get("data").getAsJsonObject();
+        String friendUserName = dataObject.get("friendUserName").getAsString();
         try {
-            int result = FriendRequestSL.acceptFriendRequest(friendUserName, userName);
+            int result = FriendRequestSL.rejectFriendRequest(friendUserName, userName);
             jsonObject = new JsonObject();
             if (result > 0) {
                 jsonObject.addProperty("Result", "succeed");
             } else {
                 jsonObject.addProperty("Result", "failed");
             }
+
         } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
             jsonObject.addProperty("Result", "failed");
@@ -254,13 +258,29 @@ public class ClientHandler extends Thread {
         writer.println(jsonString);
     }
 
-    private void handleFriendList(JsonObject jsonObject) {
+private void handleFriendList(JsonObject jsonObject) {
+
+        jsonObject = new JsonObject();
         try {
-            FriendSL.getFriendList(userName);
+            ArrayList<FriendDTO> requests = FriendSL.getFriendList(userName);
+            if (requests == null || requests.isEmpty()) {
+                jsonObject.addProperty("Result", "failed");
+                System.out.println("Server response failed: client handler " + requests);
+            } else {
+                jsonObject.addProperty("Result", "succeed");
+                jsonObject.add("requests", gson.toJsonTree(requests));
+                System.out.println("Server response succeed: client handler " + requests);
+            }
         } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+            jsonObject.addProperty("Result", "failed");
+            System.out.println("Server response failed: client handler no result ");
         }
+        String jsonString = gson.toJson(jsonObject);
+        writer.println(jsonString);
+
     }
+
 
     private void handleFriendWishList(JsonObject jsonObject) {
         String friendUserName = jsonObject.get("friendUserName").getAsString();
@@ -271,13 +291,31 @@ public class ClientHandler extends Thread {
         }
     }
 
-    private void handleRemovingFriend(JsonObject jsonObject) {
-        String friendUserName = jsonObject.get("friendUserName").getAsString();
+   private void handleRemovingFriend(JsonObject jsonObject) {
+
+        JsonObject dataObject = jsonObject.get("data").getAsJsonObject();
+        String friendUserName = dataObject.get("friendFullName").getAsString();
+        System.out.println("Removing friend: " + friendUserName + ", for user: " + userName);
+
         try {
-            FriendSL.removeFriend(friendUserName, userName);
+            int result = FriendSL.removeFriend(friendUserName, userName);
+            jsonObject = new JsonObject();
+            if (result > 0) {
+                jsonObject.addProperty("Result", "succeed");
+                System.out.println("Server response: succeed ClientHandler" + result);
+            } else {
+                jsonObject.addProperty("Result", "failed");
+                System.out.println("Server response: failed ClientHandler" + result);
+            }
+
         } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+            jsonObject.addProperty("Result", "failed");
+            System.out.println("Server response: failed 0 ClientHandler");
         }
+        String jsonString = gson.toJson(jsonObject);
+        writer.println(jsonString);
+
     }
 
     private void handleAddingFriend() {
