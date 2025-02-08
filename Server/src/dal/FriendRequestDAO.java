@@ -57,34 +57,58 @@ public class FriendRequestDAO {
 
 
     static public int rejectFriendRequest(String friendUserName, String userName) throws SQLException {
-        return 0;
-    }
-
-    static public int acceptFriendRequest(String friendUsername, String userName) throws SQLException {
-        /*Database db = new Database();
-            Connection con = db.getConnection();
-            PreparedStatement insertFriendStmt = con.prepareStatement("insert into friend (Username, Friendname) values (?, ?);"
-                    + "insert into friend (friendname, username) values (?, ?)");
-            insertFriendStmt.setString(1, userName);
-            insertFriendStmt.setString(2, friend);
-            insertFriendStmt.setString(3, userName);
-            insertFriendStmt.setString(4, friend);
-            insertFriendStmt.executeUpdate();
-
-            PreparedStatement deleteRequestStmt = con.prepareStatement("delete from Friend_requests where "
-                    + "(Username = ? and Friendname = ?) or (Username = ? and Friendname = ?)");
-            deleteRequestStmt.setString(1, userName);
-            deleteRequestStmt.setString(2, friend);
-            deleteRequestStmt.setString(3, friend);
-            deleteRequestStmt.setString(4, userName);
-            deleteRequestStmt.executeUpdate();
+        Database db = new Database();
+        Connection con = db.getConnection();
+        con.setAutoCommit(false);
+        try {
+            PreparedStatement stmt = con.prepareStatement("delete from friend_requests where FRIENDNAME = ? and USERNAME = ?");
+            stmt.setString(1, friendUserName);
+            stmt.setString(2, userName);
+            System.out.println("Delete Done rejectFriendRequest");
+            int rs = stmt.executeUpdate();
+            con.commit();
+            return rs;
+        } catch (SQLException e) {
+            con.rollback();
+            throw e;
+        } finally {
+            con.setAutoCommit(true);
             db.close();
-            insertFriendStmt.close();
-            deleteRequestStmt.close();*/
-        return 0;
-
+        }
     }
 
+    static public int acceptFriendRequest(String friend, String userName) throws SQLException {
+        Database db = new Database();
+        Connection con = db.getConnection();
+        con.setAutoCommit(false);
+        try {
+            PreparedStatement deleteStmt  = con.prepareStatement("delete from friend_requests where FRIENDNAME = ? and USERNAME = ?");
+            deleteStmt .setString(1, friend);
+            deleteStmt .setString(2, userName);
+            int rs1 = deleteStmt .executeUpdate();
+            System.out.println("Delete Done acceptFriendRequest");
+            PreparedStatement insertStmt1 = con.prepareStatement("insert into friend (USERNAME,FRIENDNAME) values ( ? , ?)");
+            insertStmt1.setString(1, friend);
+            insertStmt1.setString(2, userName);
+            int rs2 = insertStmt1.executeUpdate();
+            System.out.println("insert Done acceptFriendRequest");
+            PreparedStatement insertStmt2 = con.prepareStatement("insert into friend (USERNAME,FRIENDNAME) values ( ? , ?)");
+            insertStmt2.setString(1, userName);
+            insertStmt2.setString(2, friend);
+            System.out.println("insert2 Done acceptFriendRequest");
+            int rs3 = insertStmt2.executeUpdate();
+            con.commit();
+
+            System.out.println("Result from DAO: " + rs1 + rs2 + rs3);
+            return rs1 + rs2 + rs3;
+        } catch (SQLException e) {
+            con.rollback();
+            throw e;
+        } finally {
+            con.setAutoCommit(true);
+            db.close();
+        }
+    }
     static public ArrayList<FriendDTO> getFriend(String friendName, String userName) throws SQLException {
         Database db = new Database();
         Connection con = db.getConnection();
