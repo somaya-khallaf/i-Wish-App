@@ -1,5 +1,4 @@
 package controllers;
-
 import client.ServerConnection;
 import client.Utils;
 import com.google.gson.Gson;
@@ -37,6 +36,7 @@ public class FriendRequestController implements Initializable {
 
     FriendRequestController(ServerConnection serverConnection) {
         this.serverConnection = serverConnection;
+
     }
 
     @Override
@@ -58,7 +58,7 @@ public class FriendRequestController implements Initializable {
         }
     }
 
-    // This method sets the friend requests to the ListView
+     // This method sets the friend requests to the ListView
     public void setFriendRequestList(ArrayList<FriendDTO> requests) {
         friendRequestList.getItems().setAll(requests); // Add all friend requests to the ListView
 
@@ -109,33 +109,58 @@ public class FriendRequestController implements Initializable {
                             setGraphic(hbox);
                         }
                     }
+                   
 
-                    private void handleReject(FriendDTO item) {
-                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-                    }
                 };
             }
         });
     }
 
     @FXML
-    private void handleBackAction(ActionEvent event){
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/HomeDocument.fxml"));
-            HomeDocumentController fxmlDocumentController = new HomeDocumentController(serverConnection);
-            loader.setController(fxmlDocumentController);
-            Utils.moveToAntherScene(event, loader);
-        } catch (IOException ex) {
-            Logger.getLogger(FriendRequestController.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    private void handleBackAction(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/HomeDocument.fxml"));
+        HomeDocumentController fxmlDocumentController = new HomeDocumentController(serverConnection);
+        loader.setController(fxmlDocumentController);
+        Utils.moveToAntherScene(event, loader);
     }
 
     private void handleAccept(FriendDTO request) {
+
         System.out.println("Accepted: " + request.getFriendusername());
+        try {
+            JsonObject requestJson = new JsonObject();
+            requestJson.addProperty("friendUserName", request.getFriendusername());
+            JsonObject jsonResponse = serverConnection.sendRequest("acceptFriendRequest", requestJson);
+            System.out.println("Server response: " + jsonResponse);
+            String result = jsonResponse.get("Result").getAsString();
+            if (result.equals("succeed")) {
+                Utils.showAlert(Alert.AlertType.INFORMATION, "Friend Requests", "Friend request accepted successfully.");
+                friendRequestList.getItems().remove(request);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(FriendRequestController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }
 
     // Handle Reject button click
     private void handleReject(FriendDTO request) {
         System.out.println("Rejected: " + request.getFriendusername());
+        try {
+            JsonObject requestJson = new JsonObject();
+            System.out.println("Server response: 1 " + requestJson);
+            requestJson.addProperty("friendUserName", request.getFriendusername());
+            System.out.println("Server response: 2 " + requestJson);
+            JsonObject jsonResponse = serverConnection.sendRequest("rejectFriendRequest", requestJson);
+            System.out.println("Server response: " + jsonResponse);
+            String result = jsonResponse.get("Result").getAsString();
+            if (result.equals("succeed")) {
+                Utils.showAlert(Alert.AlertType.INFORMATION, "Friend Requests", "Friend request rejected successfully.");
+                friendRequestList.getItems().remove(request);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(FriendRequestController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }
 }
