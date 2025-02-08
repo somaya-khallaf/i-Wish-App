@@ -1,45 +1,155 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package controllers;
 
-/**
- *
- * @author Ahmed
- */
 import client.ServerConnection;
+import client.Utils;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import dto.FriendDTO;
+import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.util.Callback;
 
 public class FriendWindowController implements Initializable {
-    ServerConnection serverConnection;
+
+    Gson gson = new Gson();
+    @FXML
+    private ListView<FriendDTO> friendListView;
+    private ServerConnection serverConnection;
+    @FXML
+    private Button backBtn;
+    @FXML
+    private Button addBtn;
+
     public FriendWindowController(ServerConnection serverConnection) {
         this.serverConnection = serverConnection;
     }
-    public FriendWindowController() {
-    }
 
-    @FXML
-    private void handleAddtButton(ActionEvent event) {
-    }
-
-    @FXML
-    private void handleWishButton(ActionEvent event) {
-    }
-
-    @FXML
-    private void handleRemoveButton(ActionEvent event) {
-    }
-
-    @FXML
-    private void handleBackButton(ActionEvent event) {
-    }
-
+    @Override
     public void initialize(URL url, ResourceBundle rb) {
+        try {
+            JsonObject jsonResponse = serverConnection.sendRequest("getFriendList", null);
+            String result = jsonResponse.get("Result").getAsString();
+            if (result.equals("succeed")) {
+                FriendDTO[] friendsArray = gson.fromJson(jsonResponse.get("requests"), FriendDTO[].class);
+                ArrayList<FriendDTO> friends = new ArrayList<>(Arrays.asList(friendsArray));
+                setFriendList(friends);
+            } else {
+                Utils.showAlert(Alert.AlertType.INFORMATION, "Friend List", "You have no friends.");
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(FriendWindowController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void setFriendList(ArrayList<FriendDTO> friends) {
+        friendListView.getItems().setAll(friends);
+
+        friendListView.setCellFactory(new Callback<ListView<FriendDTO>, ListCell<FriendDTO>>() {
+            @Override
+            public ListCell<FriendDTO> call(ListView<FriendDTO> param) {
+                return new ListCell<FriendDTO>() {
+                    @Override
+                    protected void updateItem(FriendDTO item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty || item == null) {
+                            setGraphic(null);
+                        } else {
+                            HBox hbox = new HBox(10);
+                            Label usernameLabel = new Label("Full name:");
+                            usernameLabel.setPrefWidth(100);
+                            usernameLabel.setPrefHeight(50);
+                            TextField usernameField = new TextField(item.getFriendusername());
+                            usernameField.setEditable(false);
+                            usernameField.setPrefWidth(150);
+                            usernameField.setPrefHeight(50);
+
+                            Button wishBtn = new Button("Wish");
+                            Button removeBtn = new Button("Remove");
+
+                            wishBtn.setPrefWidth(100);
+                            wishBtn.setPrefHeight(50);
+                            removeBtn.setPrefWidth(100);
+                            removeBtn.setPrefHeight(50);
+
+                            wishBtn.setOnAction(event -> handleWish(event, item));
+
+                            removeBtn.setOnAction(event -> handleRemove(item));
+
+                            hbox.getChildren().addAll(usernameLabel, usernameField, wishBtn, removeBtn);
+                            setGraphic(hbox);
+                        }
+                    }
+                };
+            }
+        });
+    }
+
+   private void handleWish(ActionEvent event, FriendDTO friend) {
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/FriendWishDocument.fxml"));
+        FriendWishDocumentController homeController = new FriendWishDocumentController(serverConnection);
+        loader.setController(homeController);
+        Utils.moveToAntherScene(event, loader);
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
+
+
+    private void handleRemove(FriendDTO friend) {
+        try {
+            System.out.println("friendsList: " + friendListView);
+            System.out.println("friendToRemove: " + friend);
+
+            JsonObject requestJson = new JsonObject();
+            requestJson.addProperty("friendFullName", friend.getFriendusername());
+            JsonObject jsonResponse = serverConnection.sendRequest("removeFriend", requestJson);
+            System.out.println("Server response: " + jsonResponse);
+            String result = jsonResponse.get("Result").getAsString();
+            if (result.equals("succeed")) {
+                Utils.showAlert(Alert.AlertType.INFORMATION, "Friend List", "Friend removed successfully.");
+                if (friendListView != null && friend != null) {
+                    friendListView.getItems().remove(friend);
+                } else {
+                    System.out.println("Error: One of the objects is null.");
+                }
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(FriendWindowController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @FXML
+    private void handleBackAction(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/HomeDocument.fxml"));
+        HomeDocumentController homeController = new HomeDocumentController(serverConnection);
+        loader.setController(homeController);
+        Utils.moveToAntherScene(event, loader);
+    }
+
+    @FXML
+    private void handleAddAction(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AddFriendDocument.fxml"));
+        AddFriendDocumentController homeController = new AddFriendDocumentController(serverConnection);
+        loader.setController(homeController);
+        Utils.moveToAntherScene(event, loader);
     }
 }
