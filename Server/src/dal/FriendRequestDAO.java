@@ -19,8 +19,6 @@ import java.util.ArrayList;
  */
 public class FriendRequestDAO {
 
-
-
     static public int sendFriendRequest(String friendUsername, String userName) throws SQLException {
         Database db = new Database();
         Connection con = null;
@@ -77,6 +75,7 @@ public class FriendRequestDAO {
         }
     }
 
+
     static public int acceptFriendRequest(String friend, String userName) throws SQLException {
         Database db = new Database();
         Connection con = db.getConnection();
@@ -109,6 +108,7 @@ public class FriendRequestDAO {
             db.close();
         }
     }
+
     static public ArrayList<FriendDTO> getFriend(String friendName, String userName) throws SQLException {
         Database db = new Database();
         Connection con = db.getConnection();
@@ -151,11 +151,11 @@ public class FriendRequestDAO {
         ArrayList<FriendDTO> requests = new ArrayList<>();
         Database db = new Database();
         Connection con = db.getConnection();
-        PreparedStatement stmt = con.prepareStatement("select FR.FRIENDNAME , U.FULL_NAME from friend_requests fr join users u on FR.FRIENDNAME=U.USERNAME  where FR.USERNAME = ?");
+        PreparedStatement stmt = con.prepareStatement("select FR.USERNAME , U.FULL_NAME from friend_requests fr join users u on FR.USERNAME=U.USERNAME  where FR.FRIENDNAME = ?");
         stmt.setString(1, userName);
         ResultSet rs = stmt.executeQuery();
         while (rs.next()) {
-            FriendDTO temp = new FriendDTO(rs.getString("FRIENDNAME"), rs.getString("FULL_NAME"));
+            FriendDTO temp = new FriendDTO(rs.getString("USERNAME"), rs.getString("FULL_NAME"));
             requests.add(temp);
         }
         db.close();
