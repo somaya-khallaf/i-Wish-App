@@ -52,16 +52,14 @@ public class FriendRequestDAO {
         }
     }
 
-
-
     static public int rejectFriendRequest(String friendUserName, String userName) throws SQLException {
         Database db = new Database();
         Connection con = db.getConnection();
         con.setAutoCommit(false);
         try {
             PreparedStatement stmt = con.prepareStatement("delete from friend_requests where FRIENDNAME = ? and USERNAME = ?");
-            stmt.setString(1, friendUserName);
-            stmt.setString(2, userName);
+            stmt.setString(1, userName);
+            stmt.setString(2, friendUserName);
             System.out.println("Delete Done rejectFriendRequest");
             int rs = stmt.executeUpdate();
             con.commit();
@@ -75,16 +73,15 @@ public class FriendRequestDAO {
         }
     }
 
-
     static public int acceptFriendRequest(String friend, String userName) throws SQLException {
         Database db = new Database();
         Connection con = db.getConnection();
         con.setAutoCommit(false);
         try {
-            PreparedStatement deleteStmt  = con.prepareStatement("delete from friend_requests where FRIENDNAME = ? and USERNAME = ?");
-            deleteStmt .setString(1, friend);
-            deleteStmt .setString(2, userName);
-            int rs1 = deleteStmt .executeUpdate();
+            PreparedStatement deleteStmt = con.prepareStatement("delete from friend_requests where FRIENDNAME = ? and USERNAME = ?");
+            deleteStmt.setString(1, userName);
+            deleteStmt.setString(2, friend);
+            int rs1 = deleteStmt.executeUpdate();
             System.out.println("Delete Done acceptFriendRequest");
             PreparedStatement insertStmt1 = con.prepareStatement("insert into friend (USERNAME,FRIENDNAME) values ( ? , ?)");
             insertStmt1.setString(1, friend);
