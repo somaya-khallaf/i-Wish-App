@@ -1,5 +1,6 @@
 package controllers;
 
+import client.ServerConnection;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -38,7 +39,11 @@ public class FriendWishDocumentController implements Initializable {
     private TableColumn<Wish, String> statusColumn;
     @FXML
     private TableColumn<Wish, Void> contColumn;
+       private ServerConnection serverConnection;
 
+       public FriendWishDocumentController(ServerConnection serverConnection) {
+        this.serverConnection = serverConnection;
+        }
     public static class Wish {
 
         private String name;
@@ -87,6 +92,7 @@ public class FriendWishDocumentController implements Initializable {
             private final TextField textField = new TextField();  // Create a TextField
 
             {
+                btn.getStyleClass().add("contribute-button");
                 btn.setOnAction((ActionEvent event) -> {
                     Wish w = getTableView().getItems().get(getIndex());
                     String inputText = textField.getText();
