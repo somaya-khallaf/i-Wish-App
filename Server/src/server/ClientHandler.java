@@ -199,6 +199,24 @@ public class ClientHandler extends Thread {
         writer.println(jsonString);
     }
 
+    private void handleFriendRequestList() {
+        JsonObject jsonObject = new JsonObject();
+        try {
+            ArrayList<FriendDTO> requests = FriendRequestSL.getFriendRequestList(userName);
+            if (requests == null || requests.isEmpty()) {
+                jsonObject.addProperty("Result", "failed");
+            } else {
+                jsonObject.addProperty("Result", "succeed");
+                jsonObject.add("requests", gson.toJsonTree(requests));
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+            jsonObject.addProperty("Result", "failed");
+        }
+        String jsonString = gson.toJson(jsonObject);
+        writer.println(jsonString);
+    }
+
     private void handleAcceptingFriendRequest(JsonObject jsonObject) {
         JsonObject dataObject = jsonObject.get("data").getAsJsonObject();
         String friendUserName = dataObject.get("friendUserName").getAsString();
@@ -222,25 +240,6 @@ public class ClientHandler extends Thread {
     private void handleRejectingFriendRequest(JsonObject jsonObject) {
         JsonObject dataObject = jsonObject.get("data").getAsJsonObject();
         String friendUserName = dataObject.get("friendUserName").getAsString();
-        try {
-            int result = FriendRequestSL.rejectFriendRequest(friendUserName, userName);
-            jsonObject = new JsonObject();
-            if (result > 0) {
-                jsonObject.addProperty("Result", "succeed");
-            } else {
-                jsonObject.addProperty("Result", "failed");
-            }
-
-        } catch (SQLException ex) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
-            jsonObject.addProperty("Result", "failed");
-        }
-        String jsonString = gson.toJson(jsonObject);
-        writer.println(jsonString);
-    }
-
-    private void handleRejectingFriendRequest(JsonObject jsonObject) {
-        String friendUserName = jsonObject.get("friendUserName").getAsString();
         try {
             int result = FriendRequestSL.rejectFriendRequest(friendUserName, userName);
             jsonObject = new JsonObject();
