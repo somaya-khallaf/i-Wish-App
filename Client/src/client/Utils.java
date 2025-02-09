@@ -23,6 +23,15 @@ public class Utils {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets().add(
+                Utils.class.getResource("/css/alert.css").toExternalForm()
+        );
+        dialogPane.getStyleClass().add("custom-alert");
+
+        ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+        alert.getButtonTypes().setAll(okButton);
+
         alert.showAndWait();
     }
 }

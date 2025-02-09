@@ -1,0 +1,41 @@
+
+/* Custom Alert Dialog */
+.custom-alert {
+    -fx-background-color: #151a25; /* Dark background */
+    -fx-border-color: #2a3040; /* Border color */
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 0, 5); /* Shadow effect */
+}
+
+.custom-alert .label {
+    -fx-text-fill: #c0c8d0; /* Light gray text */
+    -fx-font-size: 14px;
+}
+
+.custom-alert .button {
+    -fx-background-color: linear-gradient(to right, #3a4a6a, #2a3a5a); /* Gradient background */
+    -fx-text-fill: #c0c8d0; /* Light gray text */
+    -fx-font-size: 14px;
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 8px;
+    -fx-border-color: #4a5a7a;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+}
+
+.custom-alert .button:hover {
+    -fx-background-color: linear-gradient(to right, #4a5a7a, #3a4a6a); /* Hover effect */
+}
+
+.custom-alert .header-panel {
+    -fx-background-color: #1a1f2c; /* Darker background for header */
+}
+
+.custom-alert .header-panel .label {
+    -fx-text-fill: #50E3C2; /* Neon green text for header */
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, #50E3C233, 10, 0, 0, 0); /* Shadow effect */
+}
