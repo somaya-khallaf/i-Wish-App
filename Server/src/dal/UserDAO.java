@@ -39,7 +39,36 @@ public class UserDAO {
     }
 
 
-    static public int addUser(User user) throws SQLException {return 0;}
+    static public int addUser(UserDTO user) throws SQLException 
+    {
+        Database db = new Database();
+        Connection con = db.getConnection();
+        String Check_user_exsistance = "select count(*) from users where username = ? ";
+        PreparedStatement user_exist = con.prepareStatement(Check_user_exsistance);
+        user_exist.setString(1, user.getUsername());
+        ResultSet rs = user_exist.executeQuery();
+        rs.next();
+        if(rs.getInt(1) > 0 )
+        {
+            System.out.println(" That User Exsists");
+            return 1;
+        }else
+        {
+            String Query = "insert into users (username,full_name,password,gender,phone,balance,dob) values (?,?,?,?,?,?,?)";
+            PreparedStatement statement = con.prepareStatement(Query);
+            statement.setString(1, user.getUsername());
+            statement.setString(2, user.getFull_name());
+            statement.setString(3, user.getPassword());
+            statement.setString(4, user.getGender());
+            statement.setString(5, user.getPhone());
+            statement.setFloat(6, user.getBalance());
+            statement.setDate(7, new java.sql.Date(user.getDob().getTime()));
+            statement.executeUpdate();
+            con.commit();
+            return 0;    
+        }
+        
+    }
     static public HomeUserDTO getHomeUser(String userName) throws SQLException {
         Database db = new Database();
         Connection con = db.getConnection();
