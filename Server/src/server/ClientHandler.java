@@ -290,7 +290,7 @@ public class ClientHandler extends Thread {
         JsonObject dataObject = jsonObject.get("data").getAsJsonObject();
         String friendUserName = dataObject.get("friendUserName").getAsString();
         try {
-            ArrayList<WishDTO> requests = WishSL.getWishListFriend(friendUserName);
+            ArrayList<WishDTO> requests = WishSL.getWishList(friendUserName);
             if (requests == null || requests.isEmpty()) {
                 jsonObject.addProperty("Result", "failed");
             } else {
@@ -389,7 +389,8 @@ public class ClientHandler extends Thread {
             double contributionAmount = dataObject.get("contribution").getAsDouble();
             String contributorName = userName;
             double remaining = dataObject.get("remaining").getAsDouble();
-            ContributionDTO contribution = new ContributionDTO(wishId, contributorName, contributionAmount, remaining);
+            String friendUsername = dataObject.get("friendUserName").getAsString();
+            ContributionDTO contribution = new ContributionDTO(wishId, contributorName, contributionAmount, remaining,friendUsername);
             int result = new ContributionSL().Contribute(contribution);
             JsonObject responseJson = new JsonObject();
             if (result == 1) {
