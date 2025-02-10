@@ -5,12 +5,39 @@
  */
 package dto;
 
-
 public class WishDTO {
+
     private int productId;
     private String productName;
     private String status;
     private double price;
+    private double remaining;
+    private int wishId;
+
+    public void setRemaining(double remaining) {
+        this.remaining = remaining;
+    }
+
+    public double getRemaining() {
+        return remaining;
+    }
+
+    public void setWishId(int wishId) {
+        this.wishId = wishId;
+    }
+
+    public int getWishId() {
+        return wishId;
+    }
+
+    public WishDTO(int productId, int wishId, String productName, double price, double remaining, String status) {
+        this.productName = productName;
+        this.status = status;
+        this.price = price;
+        this.remaining = remaining;
+        this.productId = productId;
+        this.wishId = productId;
+    }
 
     public WishDTO(int productId, String productName, String status) {
         this.productId = productId;
@@ -52,10 +79,9 @@ public class WishDTO {
     public void setPrice(double price) {
         this.price = price;
     }
+
     public void setProductId(int productId) {
         this.productId = productId;
     }
-
-
 
 }
