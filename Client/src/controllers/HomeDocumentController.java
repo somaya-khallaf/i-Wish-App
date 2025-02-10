@@ -196,6 +196,11 @@ public class HomeDocumentController implements Initializable {
 
             itemLabel.setPrefWidth(150);
 
+            itemLabel.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(itemLabel, Priority.ALWAYS);
+
+            statusLabel.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(statusLabel, Priority.ALWAYS);
             if ("Pending".equals(status)) {
                 statusLabel.setStyle("-fx-text-fill: red;");
             } else {
