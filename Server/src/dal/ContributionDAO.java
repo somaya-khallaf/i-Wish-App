@@ -20,6 +20,7 @@ public class ContributionDAO {
         double contributionAmount = Contribution.getBalance();
         String userName = Contribution.getContributer_name();
         int wish_id = Contribution.getWish_id();
+        String friendUserName = Contribution.getFriendUsername();
         try {
 
             //Step 1: check user balance
@@ -72,15 +73,17 @@ public class ContributionDAO {
             updatebalance.setString(2, userName);
             updatebalance.executeUpdate();
 
-            Contribution.setRemaining(remain - contributionAmount);
-            remain = Contribution.getRemaining();
-            if (remain == 0) {
-                try (PreparedStatement updateStatus = con.prepareStatement("update wish_table set status = 'Granted' where wish_id =? ")) {
-                    updateStatus.setInt(1, wish_id);
-                    updateStatus.executeUpdate();
-                }
+             double newRemaining = remain - contributionAmount;
+
+            if (newRemaining == 0) {
+                PreparedStatement updateStatus = con.prepareStatement("update wish_table set status = 'Granted' where wish_id =? and owner_name = ?");
+                updateStatus.setInt(1, wish_id);
+                updateStatus.setString(2, friendUserName);
+                updateStatus.executeUpdate();
+
             }
             con.commit();
+            Contribution.setRemaining(newRemaining);
             return 1;
         } catch (SQLException e) {
             con.rollback();
