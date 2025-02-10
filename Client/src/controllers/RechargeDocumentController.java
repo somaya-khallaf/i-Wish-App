@@ -5,6 +5,7 @@
  */
 package controllers;
 
+import client.ServerConnection;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -31,6 +32,11 @@ public class RechargeDocumentController implements Initializable {
     private Button addBtn;
     @FXML
     private Button cancelBtn;
+    ServerConnection serverConnection;
+
+    public RechargeDocumentController(ServerConnection serverConnection) {
+        this.serverConnection = serverConnection;
+    }
 
     @FXML
     private void handleAddAction(ActionEvent event) {
