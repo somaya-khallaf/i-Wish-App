@@ -7,7 +7,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class ContributionSL {
-     public int Contribute(ContributionDTO Contribution) throws SQLException {return 0;}
+      public int Contribute(ContributionDTO Contribution) throws SQLException {
+        return ContributionDAO.Contribute(Contribution);
+    }
      public ArrayList<ContributionDTO> getAllContribution(UserDTO Contribution) throws SQLException {return new ArrayList<>();}
 
 }
