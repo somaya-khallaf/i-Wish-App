@@ -6,12 +6,22 @@ public class ContributionDTO {
     private String Contributer_name;
     private double balance;
     private double remaining;
+    private String friendUsername;
 
-    public ContributionDTO(int wish_id, String Contributer_name, double amount, double remaining) {
+    public ContributionDTO(int wish_id, String Contributer_name, double amount, double remaining, String friendUsername) {
         this.wish_id = wish_id;
         this.Contributer_name = Contributer_name;
         this.balance = amount;
-         this.remaining = remaining;
+        this.remaining = remaining;
+        this.friendUsername = friendUsername;
+    }
+
+    public void setFriendUsername(String friendUsername) {
+        this.friendUsername = friendUsername;
+    }
+
+    public String getFriendUsername() {
+        return friendUsername;
     }
 
     public double getRemaining() {
