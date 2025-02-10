@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package dto;
 
 public class WishDTO {
@@ -36,7 +32,7 @@ public class WishDTO {
         this.price = price;
         this.remaining = remaining;
         this.productId = productId;
-        this.wishId = productId;
+        this.wishId = wishId;
     }
 
     public WishDTO(int productId, String productName, String status) {
