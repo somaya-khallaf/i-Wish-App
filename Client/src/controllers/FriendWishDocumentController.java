@@ -1,6 +1,11 @@
 package controllers;
 
 import client.ServerConnection;
+import client.Utils;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import dto.FriendDTO;
+import dto.WishDTO;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -12,12 +17,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
-import javafx.stage.Stage;
 
 public class FriendWishDocumentController implements Initializable {
 
@@ -26,102 +28,125 @@ public class FriendWishDocumentController implements Initializable {
     @FXML
     private Label totalPoint;
     @FXML
-    private Button backBtn;
+    private TableView<WishDTO> friendWishTable;
     @FXML
-    private TableView<Wish> friendWishTable;
+    private TableColumn<WishDTO, String> wishColumn;
     @FXML
-    private TableColumn<Wish, String> wishColumn;
+    private TableColumn<WishDTO, Double> fullpriceColumn;
     @FXML
-    private TableColumn<Wish, String> fullpriceColumn;
+    private TableColumn<WishDTO, Double> remainColumn;
     @FXML
-    private TableColumn<Wish, String> remainColumn;
+    private TableColumn<WishDTO, String> statusColumn;
     @FXML
-    private TableColumn<Wish, String> statusColumn;
-    @FXML
-    private TableColumn<Wish, Void> contColumn;
-       private ServerConnection serverConnection;
+    private TableColumn<WishDTO, Void> contColumn;
 
-       public FriendWishDocumentController(ServerConnection serverConnection) {
+    private ServerConnection serverConnection;
+    private Gson gson = new Gson();
+    private String friendUserName;
+    private double totalPalance;
+
+    public FriendWishDocumentController(ServerConnection serverConnection, String friendUserName, double totalPalance) {
         this.serverConnection = serverConnection;
-        }
-    public static class Wish {
-
-        private String name;
-        private String fullPrice;
-        private String remaining;
-        private String status;
-
-        public Wish(String name, String fullPrice, String remaining, String status) {
-            this.name = name;
-            this.fullPrice = fullPrice;
-            this.remaining = remaining;
-            this.status = status;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getFullPrice() {
-            return fullPrice;
-        }
-
-        public String getRemaining() {
-            return remaining;
-        }
-
-        public String getStatus() {
-            return status;
-        }
-    }
-    
-    @FXML
-    private void handleBackAction(ActionEvent event) {
+        this.friendUserName = friendUserName;
+        this.totalPalance = totalPalance;
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        wishColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-        fullpriceColumn.setCellValueFactory(new PropertyValueFactory<>("fullPrice"));
+
+        wishColumn.setCellValueFactory(new PropertyValueFactory<>("productName"));
+        fullpriceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         remainColumn.setCellValueFactory(new PropertyValueFactory<>("remaining"));
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
 
-        // Set up button column
-        contColumn.setCellFactory(param -> new TableCell<Wish, Void>() {
+        contColumn.setCellFactory(param -> new TableCell<WishDTO, Void>() {
             private final Button btn = new Button("Contribute");
-            private final TextField textField = new TextField();  // Create a TextField
+            private final TextField textField = new TextField();
+            private final Label completedLabel = new Label("Completed Wish");
 
             {
-                btn.getStyleClass().add("contribute-button");
                 btn.setOnAction((ActionEvent event) -> {
-                    Wish w = getTableView().getItems().get(getIndex());
+                    WishDTO wish = getTableView().getItems().get(getIndex());
                     String inputText = textField.getText();
-                    System.out.println("Button clicked for: " + w.getName() + " | Text: " + inputText);
-                });
+                    try {
+                        double contribution = Double.parseDouble(inputText);
+                        handleContribution(wish, contribution);
+                    } catch (NumberFormatException e) {
+                        Utils.showAlert(Alert.AlertType.ERROR, "Invalid Input", "Please enter a valid number.");
 
-                textField.setPromptText("Enter point");  // Placeholder text
-                textField.setPrefWidth(80);  // Set width
+                    }
+                    textField.clear();
+                });
+                textField.setPromptText("Enter point");
+                textField.setPrefWidth(80);
             }
 
-            @Override
+             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty) {
                     setGraphic(null);
                 } else {
-                    HBox hbox = new HBox(10, textField, btn);  // Add TextField & Button inside HBox
-                    setGraphic(hbox);
+                    WishDTO wish = getTableView().getItems().get(getIndex());
+                    if (wish != null && "Granted".equals(wish.getStatus())) {
+                        setGraphic(completedLabel);
+                    } else {
+                        HBox hbox = new HBox(10, textField, btn);
+                        setGraphic(hbox);
+                    }
                 }
             }
         });
 
-        // Sample data
-        ObservableList<Wish> w = FXCollections.observableArrayList(
-                new Wish("w1", "100", "50", "Pending"),
-                new Wish("w2", "200", "150", "Completed"),
-                new Wish("w3", "300", "100", "Processing")
-        );
+        fetchFriendWishList();
+    }
 
-        friendWishTable.setItems(w);
+    private void fetchFriendWishList() {
+
+        JsonObject requestJson = new JsonObject();
+        requestJson.addProperty("friendUserName", friendUserName);
+        JsonObject jsonResponse = serverConnection.sendRequest("getFriendWishList", requestJson);
+
+        String result = jsonResponse.get("Result").getAsString();
+        if (result.equals("succeed")) {
+            WishDTO[] wishesArray = gson.fromJson(jsonResponse.get("requests"), WishDTO[].class);
+            ObservableList<WishDTO> wishes = FXCollections.observableArrayList(wishesArray);
+            friendWishTable.setItems(wishes);
+
+            fName.setText(friendUserName);
+            totalPoint.setText(String.valueOf(totalPalance));
+        } else {
+            System.out.println("Failed to fetch friend's wish list.");
+        }
+    }
+    private void handleContribution(WishDTO wish, double contribution) {
+
+        if (contribution <= 0) {
+            Utils.showAlert(Alert.AlertType.ERROR, "Invalid Input", "Contribution must be greater than 0.");
+            return;
+        }
+        JsonObject requestJson = new JsonObject();
+        requestJson.addProperty("wishId", wish.getWishId());
+        requestJson.addProperty("contribution", contribution);
+        requestJson.addProperty("remaining", wish.getRemaining());
+        JsonObject jsonResponse = serverConnection.sendRequest("contributeToWish", requestJson);
+        String result = jsonResponse.get("Result").getAsString();
+        if (result.equals("succeed")) {
+            System.out.println("Contribution successful.");
+            fetchFriendWishList();
+            totalPoint.setText(String.valueOf(totalPalance - contribution));
+        } else {
+            System.out.println("Failed to contribute.");
+            String message = jsonResponse.get("Message").getAsString();
+            Utils.showAlert(Alert.AlertType.ERROR, "Error", message);
+        }
+    }
+
+    @FXML
+    private void handleBackAction(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/HomeDocument.fxml"));
+        HomeDocumentController homeController = new HomeDocumentController(serverConnection);
+        loader.setController(homeController);
+        Utils.moveToAntherScene(event, loader);
     }
 }
