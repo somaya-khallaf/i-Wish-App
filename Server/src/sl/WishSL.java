@@ -25,12 +25,6 @@ public class WishSL {
             wishList = WishDAO.getWishList(userName);
         return wishList;
     }
-    static public ArrayList<WishDTO> getWishListFriend(String userName) throws SQLException{
-        ArrayList<WishDTO> wishList = null;
-        if (userName != null && !userName.isEmpty())
-            wishList = WishDAO.getWishListFriend(userName);
-         System.out.println("Server response getWishListFriend SL ");
-        return wishList;
-    }
+    
 
 }
