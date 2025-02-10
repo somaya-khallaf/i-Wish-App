@@ -22,19 +22,15 @@ import com.google.gson.JsonObject;
 import dto.LoginDTO;
 import static javafx.application.Application.launch;
 
-/**
- *
- * @author helloss
- */
 public class Client extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("FXMLDocument.fxml"));
-        ServerConnection serverConnection = new ServerConnection();
-        FXMLDocumentController fxmlDocumentController = new FXMLDocumentController(serverConnection);
-        loader.setController(fxmlDocumentController);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/LoginDocument.fxml"));
         Scene scene = new Scene(loader.load());
+        stage.setOnCloseRequest(event -> {
+            // System.out.println("Closing application...");
+        });
         stage.setScene(scene);
         stage.show();
     }

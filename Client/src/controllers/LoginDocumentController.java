@@ -1,5 +1,7 @@
-package client;
+package controllers;
 
+import client.ServerConnection;
+import client.Utils;
 import com.google.gson.JsonObject;
 import controllers.HomeDocumentController;
 import controllers.SignupDocumentController;
@@ -17,11 +19,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
-/**
- *
- * @author Ahmed
- */
-public class FXMLDocumentController implements Initializable {
+public class LoginDocumentController implements Initializable {
 
     @FXML
     private TextField tfUsername;
@@ -31,8 +29,7 @@ public class FXMLDocumentController implements Initializable {
     private Button btLogin;
     ServerConnection serverConnection;
 
-    public FXMLDocumentController(ServerConnection serverConnection) {
-        this.serverConnection = serverConnection;
+    public LoginDocumentController() {
     }
 
     @FXML
@@ -50,7 +47,7 @@ public class FXMLDocumentController implements Initializable {
                 Utils.showAlert(Alert.AlertType.ERROR, "Login Failed", "Incorrect username or password.");
             }
         } catch (IOException ex) {
-            Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(LoginDocumentController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -62,10 +59,9 @@ public class FXMLDocumentController implements Initializable {
         Utils.moveToAntherScene(e, loader);
     }
 
-
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
+        serverConnection = new ServerConnection();
     }
 
 }

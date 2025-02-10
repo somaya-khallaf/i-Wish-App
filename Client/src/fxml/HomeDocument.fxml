@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="524.0" prefWidth="853.0" stylesheets="@/css/HomeDocument.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane prefHeight="524.0" prefWidth="1000" stylesheets="@/css/HomeDocument.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
 
     <BorderPane>
         <!-- Left Profile Section -->
@@ -25,9 +25,9 @@
                     <VBox prefHeight="579.0" prefWidth="208.0" spacing="20" styleClass="profile-panel">
                         <!-- User Card -->
                         <VBox styleClass="user-card">
-                            <Label fx:id="usernameLabel" prefHeight="17.0" prefWidth="85.0" styleClass="username-display" text="👤 Username">
+                            <Label fx:id="usernameLabel" prefHeight="20.0" prefWidth="100.0" styleClass="username-display" text="👤 Username">
                                 <font>
-                                    <Font size="14.0" />
+                                    <Font size="18.0" />
                                 </font>
                             </Label>
                             <Separator styleClass="gold-separator" />
@@ -39,13 +39,12 @@
 
                         <!-- Friend Controls -->
                         <VBox spacing="10" styleClass="friend-controls">
-                            <Button fx:id="friendsButton" onAction="#handleFriendsButton" prefHeight="46.0" prefWidth="114.0" styleClass="holographic-button" text="👥 Friends" />
-                            <Button fx:id="addFriendButton" onAction="#handleAddFriendButton" prefHeight="47.0" prefWidth="113.0" styleClass="holographic-button" text="➕ Add" />
-                            <AnchorPane>
-                                <children>
-                                    <Button fx:id="requestsButton" onAction="#handleRequestsButton" prefHeight="43.0" prefWidth="116.0" styleClass="holographic-button" text="📥 Requests" />
-                                </children>
-                            </AnchorPane>
+                            <Button fx:id="rechargeButton" onAction="#handleRechargeButton" prefHeight="46.0" prefWidth="120" styleClass="holographic-button" text="💰 Recharge" />
+                            <Button fx:id="friendsButton" onAction="#handleFriendsButton" prefHeight="46.0" prefWidth="120" styleClass="holographic-button" text="👥 Friends" />
+                            <Button fx:id="addFriendButton" onAction="#handleAddFriendButton" prefHeight="46.0" prefWidth="120" styleClass="holographic-button" text="➕ Add" />
+                            <Button fx:id="requestsButton" onAction="#handleRequestsButton" prefHeight="46.0" prefWidth="120" styleClass="holographic-button" text="📥 Requests" />
+                            <Button fx:id="logoutButton" onAction="#handlelogoutButton" prefHeight="46.0" prefWidth="120" styleClass="holographic-button" text="🔒 Log out" />
+                            <AnchorPane />
                         </VBox>
                     </VBox>
                 </children>
@@ -72,7 +71,7 @@
                         <children>
 
                             <!-- Wishlist Card -->
-                            <VBox layoutY="14.0" prefHeight="484.0" prefWidth="367.0" styleClass="content-card">
+                            <VBox layoutY="14.0" prefHeight="484.0" prefWidth="450" styleClass="content-card">
                                 <AnchorPane>
                                     <children>
                                         <HBox layoutX="10.0" layoutY="10.0" prefHeight="66.0" prefWidth="132.0">
@@ -80,16 +79,16 @@
                                                 <Label prefHeight="60.0" prefWidth="128.0" styleClass="card-title" text="🎁 My Wishlist" />
                                             </children>
                                         </HBox>
-                                        <Button fx:id="insertBt"  onAction="#handleInsertButton" layoutX="184.0" layoutY="28.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="37.0" text="➕" />
-                                        <Button fx:id="deleteBt" onAction="#handleDeleteButton" layoutX="233.0" layoutY="28.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="37.0" text="🗑" />
+                                        <Button fx:id="insertBt" layoutX="184.0" layoutY="28.0" mnemonicParsing="false" onAction="#handleInsertButton" prefHeight="31.0" prefWidth="37.0" text="➕" />
+                                        <Button fx:id="deleteBt" layoutX="233.0" layoutY="28.0" mnemonicParsing="false" onAction="#handleDeleteButton" prefHeight="31.0" prefWidth="37.0" text="🗑" />
                                     </children>
                                 </AnchorPane>
-                                <ScrollPane prefHeight="149.0" prefWidth="297.0" styleClass="modern-scroll">
+                                <ScrollPane prefHeight="300" prefWidth="297.0" styleClass="modern-scroll">
                                     <AnchorPane>
                                         <children>
-                                            <AnchorPane prefHeight="160.0" prefWidth="300.0">
+                                            <AnchorPane prefHeight="300" prefWidth="400">
                                                 <children>
-                                                    <VBox fx:id="WishListVBox" prefHeight="149.0" prefWidth="313.0" spacing="10" styleClass="wishlist-items">
+                                                    <VBox fx:id="WishListVBox" prefHeight="250" prefWidth="390" spacing="10" styleClass="wishlist-items">
                                                         <AnchorPane>
                                                             <children>
 
@@ -113,8 +112,8 @@
                     </AnchorPane>
 
                     <!-- Notifications Card -->
-                    <VBox fx:id="notificationVBox" prefHeight="514.0" prefWidth="353.0" spacing="80.0" styleClass="content-card" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
-                        <AnchorPane prefHeight="86.0" prefWidth="242.0">
+                    <VBox fx:id="notificationVBox" prefHeight="514.0" prefWidth="500" spacing="80.0" styleClass="content-card" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                        <AnchorPane prefHeight="86.0" prefWidth="500">
                             <children>
                                 <AnchorPane prefHeight="86.0" prefWidth="220.0">
                                     <children>
@@ -126,19 +125,19 @@
                                 <Insets />
                             </VBox.margin>
                         </AnchorPane>
-                        <ScrollPane fx:id="scrollPane" prefHeight="311.0" prefWidth="217.0" styleClass="modern-scroll">
-                            <AnchorPane prefHeight="318.0" prefWidth="232.0">
-                                <ListView fx:id="notificationListView" editable="true" prefHeight="318.0" prefWidth="242.0" styleClass="notification-list">
+                        <ScrollPane fx:id="scrollPane" prefHeight="311.0" prefWidth="300" styleClass="modern-scroll">
+                            <AnchorPane prefHeight="318.0" prefWidth="300">
+                                <ListView fx:id="notificationListView" editable="true" prefHeight="318.0" prefWidth="400" styleClass="notification-list">
 
                                 </ListView>
                                 <cursor>
                                 </cursor>
                                 <VBox.margin>
-                                    <Insets right="80.0" />
+                                    <Insets right="10" />
                                 </VBox.margin>
                             </AnchorPane>
                             <VBox.margin>
-                                <Insets left="-10.0" right="60.0" />
+                                <Insets left="-10.0" right="10" />
                             </VBox.margin>
                         </ScrollPane>
                         <GridPane.margin>
