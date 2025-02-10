@@ -41,23 +41,36 @@ public class ServerConnection {
                 reader.close();
                 writer.close();
                 mySocket.close();
+                notificationSocket.close();
             } catch (IOException ex1) {
                 Logger.getLogger(ServerConnection.class.getName()).log(Level.SEVERE, null, ex1);
             }
         }
     }
 
-    public JsonObject sendRequest(String command, Object data) throws IOException {
-        jsonObject = new JsonObject();
-        if (data != null) {
-            jsonObject.add("data", gson.toJsonTree(data));
+    public JsonObject sendRequest(String command, Object data) {
+        try {
+            jsonObject = new JsonObject();
+            if (data != null) {
+                jsonObject.add("data", gson.toJsonTree(data));
+            }
+            jsonObject.addProperty("command", command);
+            String jsonString = gson.toJson(jsonObject);
+            writer.println(jsonString);
+            String jsonResponse = reader.readLine();
+            jsonObject = JsonParser.parseString(jsonResponse).getAsJsonObject();
+        } catch (IOException ex) {
+            try {
+                reader.close();
+                writer.close();
+                mySocket.close();
+                notificationSocket.close();
+            } catch (IOException ex1) {
+                Logger.getLogger(ServerConnection.class.getName()).log(Level.SEVERE, null, ex1);
+            }
         }
-        jsonObject.addProperty("command", command);
-        String jsonString = gson.toJson(jsonObject);
-        writer.println(jsonString);
-        String jsonResponse = reader.readLine();
-        jsonObject = JsonParser.parseString(jsonResponse).getAsJsonObject();
         return jsonObject;
+
     }
 
     public JsonObject getNotifications() {
@@ -74,6 +87,17 @@ public class ServerConnection {
             }
         }
         return jsonObject;
+    }
+
+    public void close() {
+        try {
+            reader.close();
+            writer.close();
+            notificationSocket.close();
+            mySocket.close();
+        } catch (IOException ex) {
+            Logger.getLogger(ServerConnection.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }
