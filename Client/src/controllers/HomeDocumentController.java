@@ -128,7 +128,7 @@ public class HomeDocumentController implements Initializable {
     private void handleFriendsButton(ActionEvent e) throws IOException {
         thread.stop();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/FriendWindowDocument.fxml"));
-        FriendWindowController fxmlDocumentController = new FriendWindowController(serverConnection,,homeUserDTO.getBalance());
+        FriendWindowController fxmlDocumentController = new FriendWindowController(serverConnection,homeUserDTO.getBalance());
         loader.setController(fxmlDocumentController);
         Utils.moveToAntherScene(e, loader);
     }
