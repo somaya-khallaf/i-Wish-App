@@ -76,7 +76,7 @@ public class FriendWindowController implements Initializable {
                             usernameLabel.setPrefWidth(100);
                             usernameLabel.setPrefHeight(50);
 
-                            TextField usernameField = new TextField(item.getFriendusername());
+                            TextField usernameField = new TextField(item.getFriendfullname());
                             usernameField.setEditable(false);
                             usernameField.setPrefWidth(250);
                             usernameField.setPrefHeight(50);
@@ -114,7 +114,7 @@ public class FriendWindowController implements Initializable {
 
     private void handleRemove(FriendDTO friend) {
         JsonObject requestJson = new JsonObject();
-        requestJson.addProperty("friendFullName", friend.getFriendusername());
+        requestJson.addProperty("Friendusername", friend.getFriendusername());
         JsonObject jsonResponse = serverConnection.sendRequest("removeFriend", requestJson);
         String result = jsonResponse.get("Result").getAsString();
         if (result.equals("succeed")) {
