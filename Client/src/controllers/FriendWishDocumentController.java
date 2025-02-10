@@ -129,6 +129,7 @@ public class FriendWishDocumentController implements Initializable {
         requestJson.addProperty("wishId", wish.getWishId());
         requestJson.addProperty("contribution", contribution);
         requestJson.addProperty("remaining", wish.getRemaining());
+        requestJson.addProperty("friendUserName", friendUserName);
         JsonObject jsonResponse = serverConnection.sendRequest("contributeToWish", requestJson);
         String result = jsonResponse.get("Result").getAsString();
         if (result.equals("succeed")) {
