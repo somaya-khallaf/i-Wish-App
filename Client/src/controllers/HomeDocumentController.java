@@ -56,6 +56,8 @@ public class HomeDocumentController implements Initializable {
     @FXML
     private Button requestsButton;
     @FXML
+    private Button logoutButton;
+    @FXML
     private Button deleteBt;
     @FXML
     private Button insertBt;
@@ -94,22 +96,19 @@ public class HomeDocumentController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        try {
-            JsonObject jsonResponse = serverConnection.sendRequest("getHomePage", null);
-            HomePageDTO homePage = gson.fromJson(jsonResponse, HomePageDTO.class);
-            homeUserDTO = homePage.getHomeUserDTO();
-            wishList = homePage.getWishList();
-            notificationList = homePage.getNotificationList();
-            makeWishList();
-            makeNotificationList();
-            handleNotifications();
-            thread.start();
-            usernameLabel.setText(homeUserDTO.getUsername());
-            pointsLabel.setText(String.valueOf(homeUserDTO.getBalance()));
 
-        } catch (IOException ex) {
-            Logger.getLogger(HomeDocumentController.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        JsonObject jsonResponse = serverConnection.sendRequest("getHomePage", null);
+        HomePageDTO homePage = gson.fromJson(jsonResponse, HomePageDTO.class);
+        homeUserDTO = homePage.getHomeUserDTO();
+        wishList = homePage.getWishList();
+        notificationList = homePage.getNotificationList();
+        makeWishList();
+        makeNotificationList();
+        handleNotifications();
+        thread.start();
+        usernameLabel.setText(homeUserDTO.getUsername());
+        pointsLabel.setText(String.valueOf(homeUserDTO.getBalance()));
+
     }
 
     private void handleNotifications() {
@@ -122,6 +121,7 @@ public class HomeDocumentController implements Initializable {
                 }
             }
         });
+        thread.setDaemon(true);
     }
 
     @FXML
@@ -194,6 +194,8 @@ public class HomeDocumentController implements Initializable {
             itemLabel.setText(productName);
             statusLabel.setText(status);
 
+            itemLabel.setPrefWidth(150);
+
             if ("Pending".equals(status)) {
                 statusLabel.setStyle("-fx-text-fill: red;");
             } else {
@@ -206,4 +208,22 @@ public class HomeDocumentController implements Initializable {
         }
     }
 
+    @FXML
+    private void handlelogoutButton(ActionEvent e) throws IOException {
+        thread.stop();
+        JsonObject jsonResponse = serverConnection.sendRequest("logout", null);
+        serverConnection.close();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/LoginDocument.fxml"));
+        Utils.moveToAntherScene(e, loader);
+
+    }
+    @FXML
+    private void handleRechargeButton(ActionEvent e) throws IOException {
+        thread.stop();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/RechargeDocument.fxml"));
+        RechargeDocumentController fxmlDocumentController = new RechargeDocumentController(serverConnection);
+        loader.setController(fxmlDocumentController);
+        Utils.moveToAntherScene(e, loader);
+
+    }
 }
