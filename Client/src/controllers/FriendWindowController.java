@@ -44,19 +44,16 @@ public class FriendWindowController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        try {
-            JsonObject jsonResponse = serverConnection.sendRequest("getFriendList", null);
-            String result = jsonResponse.get("Result").getAsString();
-            if (result.equals("succeed")) {
-                FriendDTO[] friendsArray = gson.fromJson(jsonResponse.get("requests"), FriendDTO[].class);
-                ArrayList<FriendDTO> friends = new ArrayList<>(Arrays.asList(friendsArray));
-                setFriendList(friends);
-            } else {
-                Utils.showAlert(Alert.AlertType.INFORMATION, "Friend List", "You have no friends.");
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(FriendWindowController.class.getName()).log(Level.SEVERE, null, ex);
+        JsonObject jsonResponse = serverConnection.sendRequest("getFriendList", null);
+        String result = jsonResponse.get("Result").getAsString();
+        if (result.equals("succeed")) {
+            FriendDTO[] friendsArray = gson.fromJson(jsonResponse.get("requests"), FriendDTO[].class);
+            ArrayList<FriendDTO> friends = new ArrayList<>(Arrays.asList(friendsArray));
+            setFriendList(friends);
+        } else {
+            Utils.showAlert(Alert.AlertType.INFORMATION, "Friend List", "You have no friends.");
         }
+
     }
 
     public void setFriendList(ArrayList<FriendDTO> friends) {
@@ -78,15 +75,15 @@ public class FriendWindowController implements Initializable {
                             usernameLabel.setPrefHeight(50);
                             TextField usernameField = new TextField(item.getFriendusername());
                             usernameField.setEditable(false);
-                            usernameField.setPrefWidth(150);
+                            usernameField.setPrefWidth(250);
                             usernameField.setPrefHeight(50);
 
                             Button wishBtn = new Button("Wish");
                             Button removeBtn = new Button("Remove");
 
-                            wishBtn.setPrefWidth(100);
+                            wishBtn.setPrefWidth(130);
                             wishBtn.setPrefHeight(50);
-                            removeBtn.setPrefWidth(100);
+                            removeBtn.setPrefWidth(130);
                             removeBtn.setPrefHeight(50);
 
                             wishBtn.setOnAction(event -> handleWish(event, item));
@@ -102,39 +99,37 @@ public class FriendWindowController implements Initializable {
         });
     }
 
-   private void handleWish(ActionEvent event, FriendDTO friend) {
-    try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/FriendWishDocument.fxml"));
-        FriendWishDocumentController homeController = new FriendWishDocumentController(serverConnection);
-        loader.setController(homeController);
-        Utils.moveToAntherScene(event, loader);
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
-}
-
-
-    private void handleRemove(FriendDTO friend) {
+    private void handleWish(ActionEvent event, FriendDTO friend)  {
         try {
-            System.out.println("friendsList: " + friendListView);
-            System.out.println("friendToRemove: " + friend);
-
-            JsonObject requestJson = new JsonObject();
-            requestJson.addProperty("friendFullName", friend.getFriendusername());
-            JsonObject jsonResponse = serverConnection.sendRequest("removeFriend", requestJson);
-            System.out.println("Server response: " + jsonResponse);
-            String result = jsonResponse.get("Result").getAsString();
-            if (result.equals("succeed")) {
-                Utils.showAlert(Alert.AlertType.INFORMATION, "Friend List", "Friend removed successfully.");
-                if (friendListView != null && friend != null) {
-                    friendListView.getItems().remove(friend);
-                } else {
-                    System.out.println("Error: One of the objects is null.");
-                }
-            }
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/FriendWishDocument.fxml"));
+            FriendWishDocumentController homeController = new FriendWishDocumentController(serverConnection);
+            loader.setController(homeController);
+            Utils.moveToAntherScene(event, loader);
         } catch (IOException ex) {
             Logger.getLogger(FriendWindowController.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+    }
+
+
+    private void handleRemove(FriendDTO friend) {
+        System.out.println("friendsList: " + friendListView);
+        System.out.println("friendToRemove: " + friend);
+
+        JsonObject requestJson = new JsonObject();
+        requestJson.addProperty("friendFullName", friend.getFriendusername());
+        JsonObject jsonResponse = serverConnection.sendRequest("removeFriend", requestJson);
+        System.out.println("Server response: " + jsonResponse);
+        String result = jsonResponse.get("Result").getAsString();
+        if (result.equals("succeed")) {
+            Utils.showAlert(Alert.AlertType.INFORMATION, "Friend List", "Friend removed successfully.");
+            if (friendListView != null && friend != null) {
+                friendListView.getItems().remove(friend);
+            } else {
+                System.out.println("Error: One of the objects is null.");
+            }
+        }
+
     }
 
     @FXML

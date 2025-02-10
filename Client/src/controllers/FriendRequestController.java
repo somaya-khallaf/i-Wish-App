@@ -1,4 +1,5 @@
 package controllers;
+
 import client.ServerConnection;
 import client.Utils;
 import com.google.gson.Gson;
@@ -41,24 +42,20 @@ public class FriendRequestController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        try {
-            // TODO
-            JsonObject jsonResponse = serverConnection.sendRequest("getFriendRequestList", null);
-            System.out.println("Server response: " + jsonResponse);
-            String result = jsonResponse.get("Result").getAsString();
-            if (result.equals("succeed")) {
-                FriendDTO[] requestsArray = gson.fromJson(jsonResponse.get("requests"), FriendDTO[].class);
-                ArrayList<FriendDTO> requests = new ArrayList<>(Arrays.asList(requestsArray));
-                setFriendRequestList(requests);
-            } else {
-                Utils.showAlert(Alert.AlertType.INFORMATION, "Friend Requests", "You have no pending friend requests.");
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(FriendRequestController.class.getName()).log(Level.SEVERE, null, ex);
+        JsonObject jsonResponse = serverConnection.sendRequest("getFriendRequestList", null);
+        System.out.println("Server response: " + jsonResponse);
+        String result = jsonResponse.get("Result").getAsString();
+        if (result.equals("succeed")) {
+            FriendDTO[] requestsArray = gson.fromJson(jsonResponse.get("requests"), FriendDTO[].class);
+            ArrayList<FriendDTO> requests = new ArrayList<>(Arrays.asList(requestsArray));
+            setFriendRequestList(requests);
+        } else {
+            Utils.showAlert(Alert.AlertType.INFORMATION, "Friend Requests", "You have no pending friend requests.");
         }
+
     }
 
-     // This method sets the friend requests to the ListView
+    // This method sets the friend requests to the ListView
     public void setFriendRequestList(ArrayList<FriendDTO> requests) {
         friendRequestList.getItems().setAll(requests); // Add all friend requests to the ListView
 
@@ -109,7 +106,6 @@ public class FriendRequestController implements Initializable {
                             setGraphic(hbox);
                         }
                     }
-                   
 
                 };
             }
@@ -127,40 +123,32 @@ public class FriendRequestController implements Initializable {
     private void handleAccept(FriendDTO request) {
 
         System.out.println("Accepted: " + request.getFriendusername());
-        try {
-            JsonObject requestJson = new JsonObject();
-            requestJson.addProperty("friendUserName", request.getFriendusername());
-            JsonObject jsonResponse = serverConnection.sendRequest("acceptFriendRequest", requestJson);
-            System.out.println("Server response: " + jsonResponse);
-            String result = jsonResponse.get("Result").getAsString();
-            if (result.equals("succeed")) {
-                Utils.showAlert(Alert.AlertType.INFORMATION, "Friend Requests", "Friend request accepted successfully.");
-                friendRequestList.getItems().remove(request);
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(FriendRequestController.class.getName()).log(Level.SEVERE, null, ex);
+        JsonObject requestJson = new JsonObject();
+        requestJson.addProperty("friendUserName", request.getFriendusername());
+        JsonObject jsonResponse = serverConnection.sendRequest("acceptFriendRequest", requestJson);
+        System.out.println("Server response: " + jsonResponse);
+        String result = jsonResponse.get("Result").getAsString();
+        if (result.equals("succeed")) {
+            Utils.showAlert(Alert.AlertType.INFORMATION, "Friend Requests", "Friend request accepted successfully.");
+            friendRequestList.getItems().remove(request);
         }
-        
+
     }
 
     // Handle Reject button click
     private void handleReject(FriendDTO request) {
         System.out.println("Rejected: " + request.getFriendusername());
-        try {
-            JsonObject requestJson = new JsonObject();
-            System.out.println("Server response: 1 " + requestJson);
-            requestJson.addProperty("friendUserName", request.getFriendusername());
-            System.out.println("Server response: 2 " + requestJson);
-            JsonObject jsonResponse = serverConnection.sendRequest("rejectFriendRequest", requestJson);
-            System.out.println("Server response: " + jsonResponse);
-            String result = jsonResponse.get("Result").getAsString();
-            if (result.equals("succeed")) {
-                Utils.showAlert(Alert.AlertType.INFORMATION, "Friend Requests", "Friend request rejected successfully.");
-                friendRequestList.getItems().remove(request);
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(FriendRequestController.class.getName()).log(Level.SEVERE, null, ex);
+        JsonObject requestJson = new JsonObject();
+        System.out.println("Server response: 1 " + requestJson);
+        requestJson.addProperty("friendUserName", request.getFriendusername());
+        System.out.println("Server response: 2 " + requestJson);
+        JsonObject jsonResponse = serverConnection.sendRequest("rejectFriendRequest", requestJson);
+        System.out.println("Server response: " + jsonResponse);
+        String result = jsonResponse.get("Result").getAsString();
+        if (result.equals("succeed")) {
+            Utils.showAlert(Alert.AlertType.INFORMATION, "Friend Requests", "Friend request rejected successfully.");
+            friendRequestList.getItems().remove(request);
         }
-        
+
     }
 }

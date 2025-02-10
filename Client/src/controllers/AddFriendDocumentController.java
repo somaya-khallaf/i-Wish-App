@@ -72,20 +72,15 @@ public class AddFriendDocumentController implements Initializable {
 
     @FXML
     private void handleSearchButton(ActionEvent event) {
-        try {
-            JsonObject jsonResponse = serverConnection.sendRequest("getFriend", searchField.getText());
-            FriendDTO[] requestsArray = gson.fromJson(jsonResponse.get("requests"), FriendDTO[].class);
-            userList.clear();
-            String result = jsonResponse.get("Result").getAsString();
-            if (result.equals("succeed")) {
-                ArrayList<FriendDTO> suggestions = new ArrayList<>(Arrays.asList(requestsArray));
-                loadUsers(suggestions);
-            }
-            addTable.setItems(userList);
-
-        } catch (IOException ex) {
-            Logger.getLogger(AddFriendDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+        JsonObject jsonResponse = serverConnection.sendRequest("getFriend", searchField.getText());
+        FriendDTO[] requestsArray = gson.fromJson(jsonResponse.get("requests"), FriendDTO[].class);
+        userList.clear();
+        String result = jsonResponse.get("Result").getAsString();
+        if (result.equals("succeed")) {
+            ArrayList<FriendDTO> suggestions = new ArrayList<>(Arrays.asList(requestsArray));
+            loadUsers(suggestions);
         }
+        addTable.setItems(userList);
 
     }
 
@@ -114,14 +109,10 @@ public class AddFriendDocumentController implements Initializable {
             fullNameColumn.getStyleClass().add("fullname-column");
             addButton.getStyleClass().add("add-button");
             addButton.setOnAction(event -> {
-                try {
-                    FriendDTO user = getTableView().getItems().get(getIndex());
-                    JsonObject jsonResponse = serverConnection.sendRequest("addFriend", user.getFriendusername());
-                    System.out.println("Adding friend: " + user.getFriendusername());
-                    getTableView().getItems().remove(getIndex());
-                } catch (IOException ex) {
-                    Logger.getLogger(AddFriendDocumentController.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                FriendDTO user = getTableView().getItems().get(getIndex());
+                JsonObject jsonResponse = serverConnection.sendRequest("addFriend", user.getFriendusername());
+                System.out.println("Adding friend: " + user.getFriendusername());
+                getTableView().getItems().remove(getIndex());
             });
         }
 
