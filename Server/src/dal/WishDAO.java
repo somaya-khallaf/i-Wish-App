@@ -1,10 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package dal;
 
+import dto.FriendDTO;
 import dto.WishDTO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,7 +9,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
-
 
 public class WishDAO {
 
@@ -48,33 +44,6 @@ public class WishDAO {
     static public ArrayList<WishDTO> getWishList(String userName) throws SQLException {
         Database db = new Database();
         Connection con = db.getConnection();
-        PreparedStatement stmt = con.prepareStatement("select w.product_id, pr.Product_name, "
-                + "pr.Product_price, w.status  from wish_table w join product_table  pr"
-                + " on w.product_id = pr.product_id where owner_name = ?");
-        stmt.setString(1, userName);
-        ResultSet rs = stmt.executeQuery();
-        ArrayList<WishDTO> wishList = new ArrayList<>();
-        while (rs.next()) {
-            wishList.add(new WishDTO(rs.getInt("product_id"), rs.getString("product_name"), rs.getString("status"), rs.getDouble("Product_price")));
-        }
-        db.close();
-        stmt.close();
-        return wishList;
-    }
-    static public ArrayList<WishDTO> getWishListFriend(String frienduserName) throws SQLException {
-
-        Database db = new Database();
-        Connection con = db.getConnection();
-        ArrayList<WishDTO> wishList = new ArrayList<>();
-        PreparedStatement findstmt = con.prepareStatement("select USERNAME from users where FULL_NAME = ? ");
-        findstmt.setString(1, frienduserName);
-        ResultSet friendUN = findstmt.executeQuery();
-        if (!friendUN.next()) {
-            con.rollback();
-            return wishList; // No deletion performed
-        }
-        String friendUsername = friendUN.getString("USERNAME");
-
         PreparedStatement stmt = con.prepareStatement("WITH ContributionSums AS ( "
                 + "SELECT distinct WISH_ID, SUM(AMOUNT) over (partition by WISH_ID) AS TOTAL_CONTRIBUTIONS"
                 + " FROM  contributions) "
@@ -83,14 +52,15 @@ public class WishDAO {
                 + "JOIN product_table PT ON WT.PRODUCT_ID = PT.PRODUCT_ID "
                 + "LEFT JOIN  ContributionSums CS ON WT.WISH_ID = CS.WISH_ID "
                 + "WHERE WT.OWNER_NAME = ? ");
-        stmt.setString(1, friendUsername);
+        stmt.setString(1, userName);
         ResultSet rs = stmt.executeQuery();
-
+        ArrayList<WishDTO> wishList = new ArrayList<>();
         while (rs.next()) {
-            wishList.add(new WishDTO(rs.getInt("PRODUCT_ID"), rs.getInt("WISH_ID"), rs.getString("PRODUCT_NAME"), rs.getDouble("PRODUCT_PRICE"), rs.getDouble("REMAINING"), rs.getString("STATUS")));            
-        }
+            wishList.add(new WishDTO(rs.getInt("PRODUCT_ID"), rs.getInt("WISH_ID"), rs.getString("PRODUCT_NAME"), rs.getDouble("PRODUCT_PRICE"), rs.getDouble("REMAINING"), rs.getString("STATUS")));
+            }
         db.close();
         stmt.close();
         return wishList;
     }
+
 }
