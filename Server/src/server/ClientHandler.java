@@ -32,8 +32,8 @@ public class ClientHandler extends Thread {
     private Socket socket, notificationSocket;
     private Gson gson = new Gson();
     private JsonObject jsonObject;
-    private boolean homePageFlag = false;
     static Vector<NotificationData> clients = new Vector<NotificationData>();
+
     public ClientHandler(Socket socket, Socket notificationSocket) {
         try {
             this.socket = socket;
@@ -58,9 +58,9 @@ public class ClientHandler extends Thread {
                 try {
                     reader.close();
                     writer.close();
-                    socket.close();
                     notificationWriter.close();
                     notificationSocket.close();
+                    socket.close();
                     stop();
                 } catch (IOException ex1) {
                     Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex1);
@@ -97,17 +97,20 @@ public class ClientHandler extends Thread {
             handleRemovingFriend(jsonObject);
         } else if (command.equals("addFriend")) {
             handleAddingFriend();
-        } else if (command.equals("getFriend")){
+        } else if (command.equals("getFriend")) {
             handleGettingFriend(jsonObject);
+        } else if (command.equals("logout")) {
+            handleLogout();
         }
 
     }
-    private void handleAddingNotification(String receiverName, String notificationContent){
+
+    private void handleAddingNotification(String receiverName, String notificationContent) {
         NotificationDTO notification = new NotificationDTO(notificationContent, LocalDate.now());
         jsonObject = gson.toJsonTree(notification).getAsJsonObject();
         String jsonString = gson.toJson(jsonObject);
-        for (NotificationData cl: clients){
-            if (cl.getUserName().equals(receiverName)){
+        for (NotificationData cl : clients) {
+            if (cl.getUserName().equals(receiverName)) {
                 cl.getNotificationWriter().println(jsonString);
                 break;
             }
@@ -150,7 +153,7 @@ public class ClientHandler extends Thread {
             } else {
                 jsonObject.addProperty("Result", "failed");
             }
-            String jsonResult =  gson.toJson(jsonObject);;
+            String jsonResult = gson.toJson(jsonObject);;
             writer.println(jsonResult);
         } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
@@ -184,6 +187,7 @@ public class ClientHandler extends Thread {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     //
     private void handleRemovingWish(JsonObject jsonObject) {
         Integer[] productId = gson.fromJson(jsonObject.get("data"), Integer[].class);
@@ -236,7 +240,6 @@ public class ClientHandler extends Thread {
         writer.println(jsonString);
     }
 
-
     private void handleRejectingFriendRequest(JsonObject jsonObject) {
         JsonObject dataObject = jsonObject.get("data").getAsJsonObject();
         String friendUserName = dataObject.get("friendUserName").getAsString();
@@ -257,7 +260,7 @@ public class ClientHandler extends Thread {
         writer.println(jsonString);
     }
 
-private void handleFriendList(JsonObject jsonObject) {
+    private void handleFriendList(JsonObject jsonObject) {
 
         jsonObject = new JsonObject();
         try {
@@ -280,7 +283,6 @@ private void handleFriendList(JsonObject jsonObject) {
 
     }
 
-
     private void handleFriendWishList(JsonObject jsonObject) {
         String friendUserName = jsonObject.get("friendUserName").getAsString();
         try {
@@ -290,7 +292,7 @@ private void handleFriendList(JsonObject jsonObject) {
         }
     }
 
-   private void handleRemovingFriend(JsonObject jsonObject) {
+    private void handleRemovingFriend(JsonObject jsonObject) {
 
         JsonObject dataObject = jsonObject.get("data").getAsJsonObject();
         String friendUserName = dataObject.get("friendFullName").getAsString();
@@ -332,7 +334,7 @@ private void handleFriendList(JsonObject jsonObject) {
         writer.println(jsonString);
     }
 
-    private void handleGettingFriend(JsonObject jsonObject){
+    private void handleGettingFriend(JsonObject jsonObject) {
         try {
             String friendName = gson.fromJson(jsonObject.get("data"), String.class);
             ArrayList<FriendDTO> requests = FriendRequestSL.getFriend(friendName, userName);
@@ -349,4 +351,22 @@ private void handleFriendList(JsonObject jsonObject) {
         }
         String jsonString = gson.toJson(jsonObject);
         writer.println(jsonString);
-    }}
+    }
+
+    private void handleLogout() {
+        String jsonString = gson.toJson(jsonObject);
+        writer.println(jsonString);
+        try {
+            clients.removeIf(client -> client.getUserName().equals(userName));
+            reader.close();
+            writer.close();
+            notificationWriter.close();
+            notificationSocket.close();
+            socket.close();
+            stop();
+        } catch (IOException ex) {
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+}
