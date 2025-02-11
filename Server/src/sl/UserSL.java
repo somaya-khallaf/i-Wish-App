@@ -19,6 +19,10 @@ public class UserSL {
     static public HomeUserDTO getUserData(String userName) throws SQLException {
         HomeUserDTO homeUser = UserDAO.getHomeUser(userName);
         return homeUser;}
+    static public UserDTO getAllUserData(String userName) throws SQLException {
+        UserDTO UserData = UserDAO.getUserData(userName);
+        return UserData;
+    }
     public double getBalance(String userName) throws SQLException {return 0;}
     public int updateBalance(String userName, double amount) throws SQLException {return 0;}
 
