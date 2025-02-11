@@ -103,6 +103,8 @@ public class ClientHandler extends Thread {
             handleLogout();
         } else if (command.equals("contributeToWish")) {
             handleContribution();
+        } else if (command.equals("getUserData")) {
+            handleUserData();
         }
 
     }
@@ -417,6 +419,17 @@ public class ClientHandler extends Thread {
             errorJson.addProperty("Result", "failed");
             errorJson.addProperty("Message", "Database error: " + e.getMessage());
             writer.println(errorJson.toString());
+        }
+    }
+    private void handleUserData() {
+     try {
+            UserDTO userData = UserSL.getAllUserData(userName);
+            jsonObject = gson.toJsonTree(userData).getAsJsonObject();
+            String jsonString = gson.toJson(jsonObject);
+            writer.println(jsonString);
+
+        } catch (SQLException ex) {
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
