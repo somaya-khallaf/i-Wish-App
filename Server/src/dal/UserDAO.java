@@ -83,5 +83,20 @@ public class UserDAO {
         stmt.close();
         return homeUserData;
     }
+    static public UserDTO getUserData(String userName) throws SQLException {
+        Database db = new Database();
+        Connection con = db.getConnection();
+        PreparedStatement stmt  = con.prepareStatement("select username, full_name,gender,phone, balance,dob from users where username = ?");
+        stmt.setString(1, userName);
+        ResultSet rs = stmt.executeQuery();
+        UserDTO UserData = null;
+        if (rs.next()) {
+            UserData = new UserDTO( rs.getString("username"),  rs.getString("full_name"),   
+                    rs.getString("gender"),rs.getString("phone"), rs.getFloat("balance"),rs.getDate("dob"));
+        }
+        db.close();
+        stmt.close();
+        return UserData;
+    }
     static public int updateBalance(String userName) throws SQLException {return 0;}
 }
