@@ -41,6 +41,7 @@
                     <Button fx:id="friendsButton" onAction="#handleFriendsButton" styleClass="holographic-button" text="👥 Friends" />
                     <Button fx:id="addFriendButton" onAction="#handleAddFriendButton" styleClass="holographic-button" text="➕ Add" />
                     <Button fx:id="requestsButton" onAction="#handleRequestsButton" styleClass="holographic-button" text="📥 Requests" />
+                    <Button fx:id="editProfileButton" onAction="#handleEditProfileButton" styleClass="holographic-button" text="✏ Edit Profile" />
                     <Button fx:id="logoutButton" onAction="#handlelogoutButton" styleClass="holographic-button" text="🔒 Log out" />
                 </VBox>
             </VBox>
