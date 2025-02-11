@@ -1,16 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package dto;
 
 import java.sql.Date;
 
-/**
- *
- * @author MH
- */
 public class UserDTO 
 {
     private String username; 
@@ -25,6 +17,14 @@ public class UserDTO
         this.username = username;
         this.full_name = full_name;
         this.password = password;
+        this.gender = gender;
+        this.phone = phone;
+        this.balance = balance;
+        this.dob = dob;
+    }
+    public UserDTO(String username, String full_name, String gender, String phone, float balance, Date dob) {
+        this.username = username;
+        this.full_name = full_name;
         this.gender = gender;
         this.phone = phone;
         this.balance = balance;
@@ -87,4 +87,3 @@ public class UserDTO
         this.dob = dob;
     }
 }
-
