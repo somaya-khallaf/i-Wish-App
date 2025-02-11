@@ -231,4 +231,14 @@ public class HomeDocumentController implements Initializable {
         Utils.moveToAntherScene(e, loader);
 
     }
+        @FXML
+    private void handleEditProfileButton(ActionEvent event) throws IOException {
+        thread.stop();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/updateProfileDocument.fxml"));
+        JsonObject jsonResponse = serverConnection.sendRequest("getUserData", null);
+        UserDTO userdata = gson.fromJson(jsonResponse, UserDTO.class);
+        UpdateProfileDocumentController fxmlDocumentController = new UpdateProfileDocumentController(serverConnection,userdata);
+        loader.setController(fxmlDocumentController);
+        Utils.moveToAntherScene(event, loader);
+    }
 }
