@@ -1,16 +1,14 @@
 package controllers;
 
+import client.LoadScenes;
 import client.ServerConnection;
 import client.Utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import dto.FriendDTO;
 import dto.WishDTO;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -26,7 +24,9 @@ public class FriendWishDocumentController implements Initializable {
     @FXML
     private Label fName;
     @FXML
-    private Label totalPoint;
+    private Label dobLabel;
+    @FXML
+    private Label totalPointsLabel;
     @FXML
     private TableView<WishDTO> friendWishTable;
     @FXML
@@ -43,12 +43,12 @@ public class FriendWishDocumentController implements Initializable {
     private ServerConnection serverConnection;
     private Gson gson = new Gson();
     private String friendUserName;
-    private double totalPalance;
+    private double totalBalance;
 
-    public FriendWishDocumentController(ServerConnection serverConnection, String friendUserName, double totalPalance) {
+    public FriendWishDocumentController(ServerConnection serverConnection, String friendUserName, double totalBalance) {
         this.serverConnection = serverConnection;
         this.friendUserName = friendUserName;
-        this.totalPalance = totalPalance;
+        this.totalBalance = totalBalance;
     }
 
     @Override
@@ -78,12 +78,17 @@ public class FriendWishDocumentController implements Initializable {
                     textField.clear();
                 });
                 textField.setPromptText("Enter point");
-                textField.setPrefWidth(80);
+                textField.setPrefWidth(100);
+                //textField.setPrefHeight(8);
+                btn.setPrefHeight(8);
+
+                completedLabel.setPrefHeight(40);
             }
 
-             @Override
+            @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
+                setPrefHeight(45);
                 if (empty) {
                     setGraphic(null);
                 } else {
@@ -91,7 +96,7 @@ public class FriendWishDocumentController implements Initializable {
                     if (wish != null && "Granted".equals(wish.getStatus())) {
                         setGraphic(completedLabel);
                     } else {
-                        HBox hbox = new HBox(10, textField, btn);
+                        HBox hbox = new HBox(15, textField, btn);
                         setGraphic(hbox);
                     }
                 }
@@ -111,14 +116,16 @@ public class FriendWishDocumentController implements Initializable {
         if (result.equals("succeed")) {
             WishDTO[] wishesArray = gson.fromJson(jsonResponse.get("requests"), WishDTO[].class);
             ObservableList<WishDTO> wishes = FXCollections.observableArrayList(wishesArray);
+            System.out.println(wishes.get(0).getWishId());
             friendWishTable.setItems(wishes);
 
             fName.setText(friendUserName);
-            totalPoint.setText(String.valueOf(totalPalance));
+            totalPointsLabel.setText(String.valueOf(totalBalance));
         } else {
             System.out.println("Failed to fetch friend's wish list.");
         }
     }
+
     private void handleContribution(WishDTO wish, double contribution) {
 
         if (contribution <= 0) {
@@ -133,9 +140,8 @@ public class FriendWishDocumentController implements Initializable {
         JsonObject jsonResponse = serverConnection.sendRequest("contributeToWish", requestJson);
         String result = jsonResponse.get("Result").getAsString();
         if (result.equals("succeed")) {
-            System.out.println("Contribution successful.");
             fetchFriendWishList();
-            totalPoint.setText(String.valueOf(totalPalance - contribution));
+            totalPointsLabel.setText(String.valueOf(totalBalance - contribution));
         } else {
             System.out.println("Failed to contribute.");
             String message = jsonResponse.get("Message").getAsString();
@@ -145,9 +151,6 @@ public class FriendWishDocumentController implements Initializable {
 
     @FXML
     private void handleBackAction(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/HomeDocument.fxml"));
-        HomeDocumentController homeController = new HomeDocumentController(serverConnection);
-        loader.setController(homeController);
-        Utils.moveToAntherScene(event, loader);
+        LoadScenes.loadHomeScene();
     }
 }

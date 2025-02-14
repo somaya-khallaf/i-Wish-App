@@ -57,3 +57,56 @@
 }
 
 
+/* Existing styles remain unchanged ... */
+
+/* --- Additional styles for the updated product list --- */
+
+/* Style for the header row that displays column titles */
+.product-row-header {
+    -fx-background-color: #2a3040;
+    -fx-padding: 8px 10px;
+    -fx-spacing: 10px;
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* Style for the header labels (column titles) */
+.product-header-label {
+    -fx-text-fill: #50E3C2;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-pref-width: 100px;  /* Adjust width as needed */
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* Style for each product row (data row) */
+.product-row {
+    -fx-background-color: #1a1f2c;
+    -fx-background-radius: 10;
+    -fx-padding: 10px;
+    -fx-spacing: 10px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
+}
+
+/* Style for labels inside a product row */
+.product-row Label {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 12px;
+    -fx-pref-width: 100px;  /* Ensure each column has a fixed width; adjust as needed */
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* Optionally, add a hover effect for product rows */
+.product-row:hover {
+    -fx-background-color: #26314f;
+}
+
+
+
+.modern-scroll {
+    -fx-background-color: transparent;
+}
+
+.market-list {
+    -fx-padding: 10px;
+}

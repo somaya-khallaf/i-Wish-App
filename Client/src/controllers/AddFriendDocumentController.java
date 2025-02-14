@@ -5,8 +5,8 @@
  */
 package controllers;
 
+import client.LoadScenes;
 import client.ServerConnection;
-import client.Utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dto.FriendDTO;
@@ -21,7 +21,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
@@ -61,10 +60,7 @@ public class AddFriendDocumentController implements Initializable {
     @FXML
     private void handleBackAction(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/HomeDocument.fxml"));
-            HomeDocumentController fxmlDocumentController = new HomeDocumentController(serverConnection);
-            loader.setController(fxmlDocumentController);
-            Utils.moveToAntherScene(event, loader);
+            LoadScenes.loadHomeScene();
         } catch (IOException ex) {
             Logger.getLogger(AddFriendDocumentController.class.getName()).log(Level.SEVERE, null, ex);
         }

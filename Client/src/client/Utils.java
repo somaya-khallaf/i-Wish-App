@@ -10,11 +10,16 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.DialogPane;
 import javafx.stage.Stage;
+
 
 public class Utils {
     static public void moveToAntherScene(ActionEvent e, FXMLLoader loader) throws IOException {
         Stage stage = (Stage) ((javafx.scene.Node) e.getSource()).getScene().getWindow();
+        System.out.println("hello from utils");
         stage.setScene(new Scene(loader.load()));
         stage.show();
     }

@@ -5,10 +5,6 @@
  */
 package dto;
 
-/**
- *
- * @author Ahmed
- */
 public class HomeUserDTO {
     private String username;
     private String fullName;

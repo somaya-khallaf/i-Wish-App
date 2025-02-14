@@ -1,5 +1,8 @@
 package controllers;
 
+import client.LoadScenes;
+import javafx.concurrent.Task;
+
 import client.ServerConnection;
 import client.Utils;
 import com.google.gson.Gson;
@@ -7,26 +10,25 @@ import com.google.gson.JsonObject;
 import dto.HomePageDTO;
 import dto.HomeUserDTO;
 import dto.NotificationDTO;
-import dto.ProductDTO;
 import dto.WishDTO;
 import java.io.IOException;
-import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 /**
@@ -90,65 +92,67 @@ public class HomeDocumentController implements Initializable {
 
     private void makeNotificationList() {
         for (NotificationDTO notification : notificationList) {
-            notificationListView.getItems().add(new Label("⭐" + notification.getNotificationContent() + notification.getNotificationDate()));
+            notificationListView.getItems().add(new Label("⭐" + notification.getNotificationContent() + " at " + notification.getNotificationDate()));
         }
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
+        System.out.println("");
         JsonObject jsonResponse = serverConnection.sendRequest("getHomePage", null);
         HomePageDTO homePage = gson.fromJson(jsonResponse, HomePageDTO.class);
         homeUserDTO = homePage.getHomeUserDTO();
         wishList = homePage.getWishList();
         notificationList = homePage.getNotificationList();
-        makeWishList();
         makeNotificationList();
+        makeWishList();
         handleNotifications();
-        thread.start();
+
         usernameLabel.setText(homeUserDTO.getUsername());
         pointsLabel.setText(String.valueOf(homeUserDTO.getBalance()));
 
     }
 
     private void handleNotifications() {
-        thread = new Thread(new Runnable() {
-            public void run() {
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
                 while (true) {
                     JsonObject jsonResponse = serverConnection.getNotifications();
                     NotificationDTO notification = gson.fromJson(jsonResponse, NotificationDTO.class);
-                    notificationListView.getItems().add(0, new Label("⭐" + notification.getNotificationContent() + notification.getNotificationDate()));
+                    Platform.runLater(() -> {
+                        notificationListView.getItems().add(0, new Label("⭐" + notification.getNotificationContent() + notification.getNotificationDate()));
+                    });
+
+                    if (Thread.currentThread().isInterrupted()) {
+                        System.out.println("Thread interrupted. Exiting loop.");
+                        break; // Exit the loop
+                    }
                 }
+                return null;
             }
-        });
+        };
+
+        thread = new Thread(task);
         thread.setDaemon(true);
+        thread.start();
     }
 
     @FXML
     private void handleFriendsButton(ActionEvent e) throws IOException {
-        thread.stop();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/FriendWindowDocument.fxml"));
-        FriendWindowController fxmlDocumentController = new FriendWindowController(serverConnection,homeUserDTO.getBalance());
-        loader.setController(fxmlDocumentController);
-        Utils.moveToAntherScene(e, loader);
+        LoadScenes.loadFriendScene(homeUserDTO.getBalance());
     }
 
     @FXML
     public void handleRequestsButton(ActionEvent e) throws IOException {
-        thread.stop();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/FriendRequestDocument.fxml"));
-        FriendRequestController fxmlDocumentController = new FriendRequestController(serverConnection);
-        loader.setController(fxmlDocumentController);
-        Utils.moveToAntherScene(e, loader);
+        thread.interrupt();
+        LoadScenes.loadFriendRequestScene();
     }
 
     @FXML
     public void handleInsertButton(ActionEvent e) throws IOException {
-        thread.stop();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MarketDocument.fxml"));
-        //MarketController fxmlDocumentController = new MarketController(serverConnection);
-        //loader.setController(fxmlDocumentController);
-        Utils.moveToAntherScene(e, loader);
+        thread.interrupt();
+        LoadScenes.loadMarketScene();
     }
 
     public void handleDeleteButton(ActionEvent e) throws IOException {
@@ -167,19 +171,21 @@ public class HomeDocumentController implements Initializable {
                 }
             }
         }
-        WishListVBox.getChildren().clear();
-        makeWishList();
         JsonObject jsonResponse = serverConnection.sendRequest("removeWish", products);
+        String result = jsonResponse.get("Result").getAsString();
+        if (result.equals("succeed")) {
+            WishListVBox.getChildren().clear();
+            makeWishList();
+        } else {
+            Utils.showAlert(Alert.AlertType.ERROR, "delete Failed", "Cannot delete a wish with contributions.");
+        }
 
     }
 
     @FXML
     public void handleAddFriendButton(ActionEvent e) throws IOException {
-        thread.stop();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AddFriendDocument.fxml"));
-        AddFriendDocumentController fxmlDocumentController = new AddFriendDocumentController(serverConnection);
-        loader.setController(fxmlDocumentController);
-        Utils.moveToAntherScene(e, loader);
+        thread.interrupt();
+        LoadScenes.loadAddFriendScene();
     }
 
     private void addWish(int productId, String productName, String status) {
@@ -215,30 +221,16 @@ public class HomeDocumentController implements Initializable {
 
     @FXML
     private void handlelogoutButton(ActionEvent e) throws IOException {
-        thread.stop();
+        thread.interrupt();
         JsonObject jsonResponse = serverConnection.sendRequest("logout", null);
         serverConnection.close();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/LoginDocument.fxml"));
-        Utils.moveToAntherScene(e, loader);
-
+        LoadScenes.loadLoginScene();
     }
+
     @FXML
     private void handleRechargeButton(ActionEvent e) throws IOException {
-        thread.stop();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/RechargeDocument.fxml"));
-        RechargeDocumentController fxmlDocumentController = new RechargeDocumentController(serverConnection);
-        loader.setController(fxmlDocumentController);
-        Utils.moveToAntherScene(e, loader);
+        thread.interrupt();
+        LoadScenes.loadRechargeScene();
 
-    }
-        @FXML
-    private void handleEditProfileButton(ActionEvent event) throws IOException {
-        thread.stop();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/updateProfileDocument.fxml"));
-        JsonObject jsonResponse = serverConnection.sendRequest("getUserData", null);
-        UserDTO userdata = gson.fromJson(jsonResponse, UserDTO.class);
-        UpdateProfileDocumentController fxmlDocumentController = new UpdateProfileDocumentController(serverConnection,userdata);
-        loader.setController(fxmlDocumentController);
-        Utils.moveToAntherScene(event, loader);
     }
 }

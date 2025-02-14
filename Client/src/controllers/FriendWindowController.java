@@ -1,5 +1,6 @@
 package controllers;
 
+import client.LoadScenes;
 import client.ServerConnection;
 import client.Utils;
 import com.google.gson.Gson;
@@ -10,13 +11,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -25,6 +21,8 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.util.Callback;
 
 public class FriendWindowController implements Initializable {
@@ -39,7 +37,7 @@ public class FriendWindowController implements Initializable {
     private Button addBtn;
     private double totalPalance;
 
-    public FriendWindowController(ServerConnection serverConnection,double totalPalance) {
+    public FriendWindowController(ServerConnection serverConnection, double totalPalance) {
         this.serverConnection = serverConnection;
         this.totalPalance = totalPalance;
     }
@@ -52,6 +50,7 @@ public class FriendWindowController implements Initializable {
         if (result.equals("succeed")) {
             FriendDTO[] friendsArray = gson.fromJson(jsonResponse.get("requests"), FriendDTO[].class);
             ArrayList<FriendDTO> friends = new ArrayList<>(Arrays.asList(friendsArray));
+            System.out.println(friends.get(0).getFriendfullname());
             setFriendList(friends);
         } else {
             Utils.showAlert(Alert.AlertType.INFORMATION, "Friend List", "You have no friends.");
@@ -78,7 +77,7 @@ public class FriendWindowController implements Initializable {
 
                             TextField usernameField = new TextField(item.getFriendfullname());
                             usernameField.setEditable(false);
-                            usernameField.setPrefWidth(250);
+                            usernameField.setPrefWidth(280);
                             usernameField.setPrefHeight(50);
 
                             Button wishBtn = new Button("Wish");
@@ -91,8 +90,9 @@ public class FriendWindowController implements Initializable {
 
                             wishBtn.setOnAction(event -> handleWish(event, item));
                             removeBtn.setOnAction(event -> handleRemove(item));
-
-                            hbox.getChildren().addAll(usernameLabel, usernameField, wishBtn, removeBtn);
+                            Region spacer = new Region();
+                            HBox.setHgrow(spacer, Priority.ALWAYS);
+                            hbox.getChildren().addAll(usernameLabel, usernameField, spacer,  wishBtn, removeBtn);
                             setGraphic(hbox);
                         }
                     }
@@ -103,10 +103,7 @@ public class FriendWindowController implements Initializable {
 
     private void handleWish(ActionEvent event, FriendDTO friend) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/FriendWishDocument.fxml"));
-            FriendWishDocumentController homeController = new FriendWishDocumentController(serverConnection, friend.getFriendusername(),totalPalance);          
-            loader.setController(homeController);
-            Utils.moveToAntherScene(event, loader);
+            LoadScenes.loadFriendWisheScene(friend.getFriendusername(), totalPalance);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -129,17 +126,11 @@ public class FriendWindowController implements Initializable {
 
     @FXML
     private void handleBackAction(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/HomeDocument.fxml"));
-        HomeDocumentController homeController = new HomeDocumentController(serverConnection);
-        loader.setController(homeController);
-        Utils.moveToAntherScene(event, loader);
+        LoadScenes.loadHomeScene();
     }
 
     @FXML
     private void handleAddAction(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AddFriendDocument.fxml"));
-        AddFriendDocumentController homeController = new AddFriendDocumentController(serverConnection);
-        loader.setController(homeController);
-        Utils.moveToAntherScene(event, loader);
+        LoadScenes.loadAddFriendScene();
     }
 }

@@ -2,6 +2,8 @@
 .root {
     -fx-base: #0a0f1b;
     -fx-font-family: 'Roboto';
+   -fx-text-background-color: #c0c8d0; /* Define the missing property */
+
 }
 
 /* Profile Panel */
@@ -95,13 +97,10 @@
 }
 
 
-.completed-label {
-    -fx-text-fill: green;
+.label {
+    -fx-text-fill: #c0c8d0; /* Set a default text color for labels */
 }
-
-.not-completed-label {
-    -fx-text-fill: red;
+.friend-controls .button {
+    -fx-min-width: 150px; /* Wider buttons for friend controls */
+    -fx-max-width: 150px;
 }
-
-
-

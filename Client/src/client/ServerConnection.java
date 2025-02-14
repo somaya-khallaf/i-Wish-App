@@ -16,10 +16,7 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author Ahmed
- */
+
 public class ServerConnection {
 
     PrintWriter writer;
@@ -93,6 +90,7 @@ public class ServerConnection {
         try {
             reader.close();
             writer.close();
+            notificationReader.close();
             notificationSocket.close();
             mySocket.close();
         } catch (IOException ex) {

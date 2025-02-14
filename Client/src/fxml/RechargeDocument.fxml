@@ -6,41 +6,40 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.RechargeDocumentController">
+<AnchorPane prefHeight="524.0" prefWidth="1000.0" stylesheets="@/css/Recharge.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Label layoutX="234.0" layoutY="24.0" text="Credit Form">
+      <Label layoutX="393.0" layoutY="14.0" prefHeight="60.0" prefWidth="290.0" text="Credit Form">
          <font>
-            <Font name="System Bold" size="24.0" />
+            <Font name="System Bold" size="36.0" />
          </font>
       </Label>
-      <Label layoutX="226.0" layoutY="96.0" text="Number of Card">
+      <Label layoutX="411.0" layoutY="128.0" text="Number of Card">
          <font>
-            <Font size="18.0" />
+            <Font size="24.0" />
          </font>
       </Label>
-      <Label layoutX="226.0" layoutY="148.0" prefWidth="83.0" text="Password">
-         <font>
-            <Font size="18.0" />
-         </font>
-      </Label>
-      <Label layoutX="226.0" layoutY="200.0" text="Point">
-         <font>
-            <Font size="18.0" />
-         </font>
-      </Label>
-      <TextField fx:id="creditCardField" layoutX="226.0" layoutY="123.0" />
-      <TextField fx:id="pointField" layoutX="226.0" layoutY="227.0" />
-      <TextField fx:id="passwordField" layoutX="226.0" layoutY="175.0" />
-      <Button fx:id="addBtn" layoutX="226.0" layoutY="289.0" mnemonicParsing="false" onAction="#handleAddAction" prefHeight="32.0" prefWidth="68.0" text="ADD">
+      <TextField fx:id="creditCardField" layoutX="366.0" layoutY="182.0" prefHeight="40.0" prefWidth="269.0" />
+      <TextField fx:id="pointField" layoutX="363.0" layoutY="371.0" prefHeight="40.0" prefWidth="269.0" />
+      <TextField fx:id="passwordField" layoutX="366.0" layoutY="282.0" prefHeight="40.0" prefWidth="269.0" />
+      <Button fx:id="addBtn" layoutX="366.0" layoutY="435.0" mnemonicParsing="false" onAction="#handleAddAction" prefHeight="43.0" prefWidth="120.0" text="ADD">
          <font>
             <Font size="13.0" />
          </font>
       </Button>
-      <Button fx:id="cancelBtn" layoutX="313.0" layoutY="289.0" mnemonicParsing="false" onAction="#handleCancelAction" prefHeight="32.0" prefWidth="68.0" text="Cancel">
+      <Button fx:id="cancelBtn" layoutX="512.0" layoutY="435.0" mnemonicParsing="false" onAction="#handleCancelAction" prefHeight="43.0" prefWidth="120.0" text="Cancel">
          <font>
             <Font size="13.0" />
          </font>
       </Button>
+      <Label layoutX="447.0" layoutY="235.0" text="Password">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
+      <Label layoutX="464.0" layoutY="336.0" text="Points">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>

@@ -1,5 +1,6 @@
 package controllers;
 
+import client.LoadScenes;
 import client.ServerConnection;
 import client.Utils;
 import com.google.gson.Gson;
@@ -15,14 +16,10 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.TextField;
 import javafx.util.Callback;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 
@@ -35,7 +32,7 @@ public class FriendRequestController implements Initializable {
     @FXML
     private Button backBtn;
 
-    FriendRequestController(ServerConnection serverConnection) {
+    public FriendRequestController(ServerConnection serverConnection) {
         this.serverConnection = serverConnection;
 
     }
@@ -114,10 +111,7 @@ public class FriendRequestController implements Initializable {
 
     @FXML
     private void handleBackAction(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/HomeDocument.fxml"));
-        HomeDocumentController fxmlDocumentController = new HomeDocumentController(serverConnection);
-        loader.setController(fxmlDocumentController);
-        Utils.moveToAntherScene(event, loader);
+        LoadScenes.loadHomeScene();
     }
 
     private void handleAccept(FriendDTO request) {

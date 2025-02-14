@@ -1,11 +1,11 @@
 package dto;
+import java.time.Instant;
 import java.time.LocalDate;
-
 public class NotificationDTO {
     private String notificationContent;
-    private LocalDate notificationDate;
+    private Instant notificationDate;
 
-    public NotificationDTO(String notification_content, LocalDate notification_date) {
+    public NotificationDTO(String notification_content, Instant notification_date) {
         this.notificationContent = notification_content;
         this.notificationDate = notification_date;
     }
@@ -14,7 +14,7 @@ public class NotificationDTO {
         this.notificationContent = notification_content;
     }
 
-    public void setNotificationDate(LocalDate notification_date) {
+    public void setNotificationDate(Instant notification_date) {
         this.notificationDate = notification_date;
     }
 
@@ -22,7 +22,7 @@ public class NotificationDTO {
         return notificationContent;
     }
 
-    public LocalDate getNotificationDate() {
+    public Instant getNotificationDate() {
         return notificationDate;
     }
 

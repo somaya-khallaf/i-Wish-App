@@ -130,10 +130,6 @@
     -fx-border-color: #50E3C2;
 }
 
-.label {
-    -fx-text-fill: #c0c8d0;
-    -fx-font-size: 17px;
-}
 
 .button {
     -fx-background-color: linear-gradient(to right, #3a4a6a, #2a3a5a);
