@@ -11,86 +11,72 @@ import java.util.ArrayList;
 
 public class ContributionDAO {
 
-    static public int Contribute(ContributionDTO Contribution) throws SQLException {
+    static public double getBalance(String username, Connection con) throws SQLException {
+        String query = "SELECT balance FROM users WHERE username = ?";
+        try (PreparedStatement stmt = con.prepareStatement(query)) {
+            stmt.setString(1, username);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() ? rs.getDouble("balance") : 0.0;
+            }
+        }
+    }
 
-        Database db = new Database();
-        Connection con = db.getConnection();
+    static public int updateStatus(int wishId, Connection con) throws SQLException {
+        String query = "UPDATE wish_table SET status = 'Granted' WHERE wish_id = ?";
+        try (PreparedStatement stmt = con.prepareStatement(query)) {
+            stmt.setInt(1, wishId);
+            return stmt.executeUpdate();
+        }
+    }
+
+    public static int contribute(ContributionDTO contribution, Connection con) throws SQLException {
+        String userName = contribution.getContributer_name();
+        int wishId = contribution.getWish_id();
+        double contributionAmount = contribution.getAmount();
+
         con.setAutoCommit(false);
-        double remain = Contribution.getRemaining();
-        double contributionAmount = Contribution.getBalance();
-        String userName = Contribution.getContributer_name();
-        int wish_id = Contribution.getWish_id();
-        String friendUserName = Contribution.getFriendUsername();
-        try {
-
-            //Step 1: check user balance
-            PreparedStatement checkBalance = con.prepareStatement("select balance from users where username = ? ");
-            checkBalance.setString(1, userName);
-            ResultSet resultBalance = checkBalance.executeQuery();
-            if (!resultBalance.next()) {
-                System.out.println("User not found!");
-                return -1; // User not found
-            }
-            double userBalance = resultBalance.getDouble("balance");
-            if (userBalance < contributionAmount) {
-                System.out.println("Insufficient points!");
-                return -2;
-            }
-
-            //Step 2: Check the remaining balance of the wish
-            if (contributionAmount > remain) {
-                System.out.println("Contribution exceeds remaining amount");
-                return -3;
+        try (
+                PreparedStatement updateBalance = con.prepareStatement(
+                        "UPDATE users SET balance = balance - ? WHERE username = ?"
+                );
+                PreparedStatement checkContribution = con.prepareStatement(
+                        "SELECT amount FROM contributions WHERE Contributer_name = ? AND wish_id = ?"
+                );
+                PreparedStatement updateContribution = con.prepareStatement(
+                        "UPDATE contributions SET amount = amount + ? WHERE Contributer_name = ? AND wish_id = ?"
+                );
+                PreparedStatement insertContribution = con.prepareStatement(
+                        "INSERT INTO contributions (Contributer_name, wish_id, amount) VALUES (?, ?, ?)"
+                )) {
+            updateBalance.setDouble(1, contributionAmount);
+            updateBalance.setString(2, userName);
+            int balanceUpdated = updateBalance.executeUpdate();
+            if (balanceUpdated == 0) {
+                throw new SQLException("Balance update failed. User may not exist or insufficient funds.");
             }
 
-            // Step 3: Check if the user already contributed
-            PreparedStatement checkContribution = con.prepareStatement("select amount from contributions where Contributer_name = ? AND WISH_ID = ?");
             checkContribution.setString(1, userName);
-            checkContribution.setInt(2, wish_id);
-            ResultSet isexist = checkContribution.executeQuery();
+            checkContribution.setInt(2, wishId);
+            ResultSet result = checkContribution.executeQuery();
 
-            if (isexist.next()) {
-                // Contribution exists, update it
-                PreparedStatement updateContribution = con.prepareStatement("update contributions set amount = amount + ? where Contributer_name = ? and wish_id = ? ");
-                updateContribution.setInt(3, wish_id);
+            if (result.next()) {
                 updateContribution.setDouble(1, contributionAmount);
                 updateContribution.setString(2, userName);
+                updateContribution.setInt(3, wishId);
                 updateContribution.executeUpdate();
-
             } else {
-                // No contribution exists, insert a new record
-                PreparedStatement insertContribution = con.prepareStatement("insert into contributions (Contributer_name, wish_id, amount) values (?,?,?)");
                 insertContribution.setString(1, userName);
-                insertContribution.setInt(2, wish_id);
+                insertContribution.setInt(2, wishId);
                 insertContribution.setDouble(3, contributionAmount);
-
                 insertContribution.executeUpdate();
             }
-
-            //Step 4: update points from the contributer's balance
-            PreparedStatement updatebalance = con.prepareStatement("update users set balance = balance - ? where username = ?");
-            updatebalance.setDouble(1, contributionAmount);
-            updatebalance.setString(2, userName);
-            updatebalance.executeUpdate();
-
-             double newRemaining = remain - contributionAmount;
-
-            if (newRemaining == 0) {
-                PreparedStatement updateStatus = con.prepareStatement("update wish_table set status = 'Granted' where wish_id =? and owner_name = ?");
-                updateStatus.setInt(1, wish_id);
-                updateStatus.setString(2, friendUserName);
-                updateStatus.executeUpdate();
-
-            }
             con.commit();
-            Contribution.setRemaining(newRemaining);
             return 1;
         } catch (SQLException e) {
             con.rollback();
             throw e;
         } finally {
             con.setAutoCommit(true);
-            db.close();
         }
     }
 

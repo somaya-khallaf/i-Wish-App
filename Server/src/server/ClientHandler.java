@@ -15,12 +15,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import java.io.*;
-import java.net.ServerSocket;
 import java.sql.SQLException;
 
-import entities.User;
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.Vector;
 import sl.*;
 
@@ -36,14 +33,17 @@ public class ClientHandler extends Thread {
 
     public ClientHandler(Socket socket, Socket notificationSocket) {
         try {
+            LoggerUtil.info("Connecting to " + socket.getInetAddress() + "...");
             this.socket = socket;
             this.notificationSocket = notificationSocket;
             notificationWriter = new PrintWriter(notificationSocket.getOutputStream(), true);
             notificationReader = new BufferedReader(new InputStreamReader(notificationSocket.getInputStream()));
             writer = new PrintWriter(socket.getOutputStream(), true);
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            LoggerUtil.info("connected to " + socket.getInetAddress());
             start();
         } catch (IOException ex) {
+            LoggerUtil.error("Failed to connect to " + socket.getInetAddress());
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -56,6 +56,7 @@ public class ClientHandler extends Thread {
                 handleCommand(jsonObject);
             } catch (IOException ex) {
                 try {
+                    clients.removeIf(client -> client.getUserName().equals(userName));
                     reader.close();
                     writer.close();
                     notificationWriter.close();
@@ -71,59 +72,76 @@ public class ClientHandler extends Thread {
 
     public void handleCommand(JsonObject jsonObject) {
         String command = jsonObject.get("command").getAsString();
-        if (command.equals("login")) {
-            handleLogIn(jsonObject);
-        } else if (command.equals("getHomePage")) {
-            handleHomePage();
-        } else if (command.equals("register")) {
-            handleRegister(jsonObject);
-        } else if (command.equals("getProductlist")) {
-            handleProductList();
-        } else if (command.equals("addWish")) {
-            handleAddingWish(jsonObject);
-        } else if (command.equals("removeWish")) {
-            handleRemovingWish(jsonObject);
-        } else if (command.equals("getFriendRequestList")) {
-            handleFriendRequestList();
-        } else if (command.equals("acceptFriendRequest")) {
-            handleAcceptingFriendRequest(jsonObject);
-        } else if (command.equals("rejectFriendRequest")) {
-            handleRejectingFriendRequest(jsonObject);
-        } else if (command.equals("getFriendList")) {
-            handleFriendList(jsonObject);
-        } else if (command.equals("getFriendWishList")) {
-            handleFriendWishList(jsonObject);
-        } else if (command.equals("removeFriend")) {
-            handleRemovingFriend(jsonObject);
-        } else if (command.equals("addFriend")) {
-            handleAddingFriend();
-        } else if (command.equals("getFriend")) {
-            handleGettingFriend(jsonObject);
-        } else if (command.equals("logout")) {
-            handleLogout();
-        } else if (command.equals("contributeToWish")) {
-            handleContribution();
-        } else if (command.equals("getUserData")) {
-            handleUserData();
+        switch (command) {
+            case "login":
+                handleLogIn(jsonObject);
+                break;
+            case "getHomePage":
+                handleHomePage();
+                break;
+            case "register":
+                handleRegister(jsonObject);
+                break;
+            case "getProductlist":
+                handleProductList();
+                break;
+            case "addWish":
+                handleAddingWish(jsonObject);
+                break;
+            case "removeWish":
+                handleRemovingWish(jsonObject);
+                break;
+            case "getFriendRequestList":
+                handleFriendRequestList();
+                break;
+            case "acceptFriendRequest":
+                handleAcceptingFriendRequest(jsonObject);
+                break;
+            case "rejectFriendRequest":
+                handleRejectingFriendRequest(jsonObject);
+                break;
+            case "getFriendList":
+                handleFriendList(jsonObject);
+                break;
+            case "getFriendWishList":
+                handleFriendWishList(jsonObject);
+                break;
+            case "removeFriend":
+                handleRemovingFriend(jsonObject);
+                break;
+            case "addFriend":
+                handleAddingFriend();
+                break;
+            case "getFriend":
+                handleGettingFriend(jsonObject);
+                break;
+            case "logout":
+                handleLogout();
+                break;
+            case "contributeToWish":
+                handleContribution();
+                break;
+            case "recharge":
+                handleRecharge(jsonObject);
+                break;
+            default:
+                break;
         }
 
     }
 
     private void handleAddingNotification(String receiverName, String notificationContent) {
-        NotificationDTO notification = new NotificationDTO(notificationContent, LocalDate.now());
+        NotificationDTO notification = new NotificationDTO(notificationContent, Instant.now());
         jsonObject = gson.toJsonTree(notification).getAsJsonObject();
         String jsonString = gson.toJson(jsonObject);
         for (NotificationData cl : clients) {
+            System.out.println(cl.getUserName());
             if (cl.getUserName().equals(receiverName)) {
                 cl.getNotificationWriter().println(jsonString);
-                break;
             }
         }
-        try {
-            NotificationSL.addNotification(receiverName, notification);
-        } catch (SQLException ex) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        NotificationSL.addNotification(receiverName, notification);
+
     }
 
     private void handleHomePage() {
@@ -143,84 +161,95 @@ public class ClientHandler extends Thread {
 
     private void handleLogIn(JsonObject jsonObject) {
         LoginDTO loginData = gson.fromJson(jsonObject.get("data"), LoginDTO.class);
-
-        System.out.println(loginData.getUsername());
-
+        loginData.setUsername(loginData.getUsername().trim());
         jsonObject = new JsonObject();
-        try {
-            if (UserSL.logIn(loginData)) {
-                userName = loginData.getUsername();
-                clients.add(new NotificationData(userName, notificationWriter, notificationSocket));
-                System.out.println(userName);
-                jsonObject.addProperty("Result", "succeed");
+        if (UserSL.validateLogin(loginData)) {
+            userName = loginData.getUsername();
+            clients.add(new NotificationData(userName, notificationWriter, notificationSocket));
+            jsonObject.addProperty("Result", "succeed");
 
-            } else {
-                jsonObject.addProperty("Result", "failed");
-            }
-            String jsonResult = gson.toJson(jsonObject);;
-            writer.println(jsonResult);
-        } catch (SQLException ex) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+        } else {
+            jsonObject.addProperty("Result", "failed");
         }
+        String jsonResult = gson.toJson(jsonObject);;
+        writer.println(jsonResult);
 
     }
 
     private void handleRegister(JsonObject jsonObject) {
         Gson gson = new Gson();
-        User userData = gson.fromJson(jsonObject.get("data"), User.class);
-        try {
-            UserSL.register(userData);
-        } catch (SQLException ex) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+        UserDTO userData = gson.fromJson(jsonObject.get("data"), UserDTO.class);
+        int result = UserSL.register(userData);
+        jsonObject = new JsonObject();
+        if (result > 0) {
+            jsonObject.addProperty("Result", "success");
+        } else if (result == -1) {
+            jsonObject.addProperty("Result", "User already exists");
+        } else {
+            jsonObject.addProperty("Result", "error");
         }
+        writer.println(gson.toJson(jsonObject));
     }
 
     private void handleProductList() {
-        try {
-            ProductSL.getAllProducts();
-        } catch (SQLException ex) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
+        ArrayList<ProductDTO> products = ProductSL.getAllProducts();
+        JsonObject response = new JsonObject();
+        System.out.println(products.get(0));
+        response.addProperty("Result", "succeed");
+        response.add("products", gson.toJsonTree(products));
+        writer.println(gson.toJson(response));
+
     }
 
     private void handleAddingWish(JsonObject jsonObject) {
-        int productId = jsonObject.get("productId").getAsInt();
         try {
-            WishSL.addWish(productId, userName);
-        } catch (SQLException ex) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+            //int productId = jsonObject.get("product_id").getAsInt();
+            Integer productId = gson.fromJson(jsonObject.get("data"), Integer.class);
+            int success = WishSL.addWish(productId, userName);
+
+            JsonObject response = new JsonObject();
+            if (success > 1) {
+                response.addProperty("Result", "succeed");
+            } else {
+                response.addProperty("Result", "failed");
+                response.addProperty("message", "Failed to add to wishlist");
+            }
+            writer.println(gson.toJson(response));
+        } catch (Exception e) {
+            e.printStackTrace();
+            JsonObject errorResponse = new JsonObject();
+            errorResponse.addProperty("Result", "failed");
+            errorResponse.addProperty("message", "An error occurred while adding to wishlist");
+            writer.println(gson.toJson(errorResponse));
         }
     }
 
     //
     private void handleRemovingWish(JsonObject jsonObject) {
         Integer[] productId = gson.fromJson(jsonObject.get("data"), Integer[].class);
-        System.out.println(productId[0]);
-        try {
-            WishSL.removeWish(productId, userName);
-        } catch (SQLException ex) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        int result = WishSL.removeWish(productId, userName);
         jsonObject = new JsonObject();
-        jsonObject.addProperty("Result", "succeed");
+        if (result > 0) {
+            jsonObject.addProperty("Result", "succeed");
+        } else {
+            jsonObject.addProperty("Result", "failed");
+        }
+
         String jsonString = gson.toJson(jsonObject);
         writer.println(jsonString);
     }
 
     private void handleFriendRequestList() {
         JsonObject jsonObject = new JsonObject();
-        try {
-            ArrayList<FriendDTO> requests = FriendRequestSL.getFriendRequestList(userName);
-            if (requests == null || requests.isEmpty()) {
-                jsonObject.addProperty("Result", "failed");
-            } else {
-                jsonObject.addProperty("Result", "succeed");
-                jsonObject.add("requests", gson.toJsonTree(requests));
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+        ArrayList<FriendDTO> requests = FriendRequestSL.getFriendRequestList(userName);
+        if (requests == null || requests.isEmpty()) {
             jsonObject.addProperty("Result", "failed");
+        } else {
+            jsonObject.addProperty("Result", "succeed");
+            jsonObject.add("requests", gson.toJsonTree(requests));
         }
+
         String jsonString = gson.toJson(jsonObject);
         writer.println(jsonString);
     }
@@ -228,19 +257,14 @@ public class ClientHandler extends Thread {
     private void handleAcceptingFriendRequest(JsonObject jsonObject) {
         JsonObject dataObject = jsonObject.get("data").getAsJsonObject();
         String friendUserName = dataObject.get("friendUserName").getAsString();
-        try {
-            int result = FriendRequestSL.acceptFriendRequest(friendUserName, userName);
-            jsonObject = new JsonObject();
-            if (result > 0) {
-                jsonObject.addProperty("Result", "succeed");
-                handleAddingNotification(friendUserName, userName + " accepted your friend request.");
-            } else {
-                jsonObject.addProperty("Result", "failed");
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+        int result = FriendRequestSL.acceptFriendRequest(friendUserName, userName);
+        jsonObject = new JsonObject();
+        if (result > 0) {
+            jsonObject.addProperty("Result", "succeed");
+        } else {
             jsonObject.addProperty("Result", "failed");
         }
+
         String jsonString = gson.toJson(jsonObject);
         writer.println(jsonString);
     }
@@ -248,19 +272,14 @@ public class ClientHandler extends Thread {
     private void handleRejectingFriendRequest(JsonObject jsonObject) {
         JsonObject dataObject = jsonObject.get("data").getAsJsonObject();
         String friendUserName = dataObject.get("friendUserName").getAsString();
-        try {
-            int result = FriendRequestSL.rejectFriendRequest(friendUserName, userName);
-            jsonObject = new JsonObject();
-            if (result > 0) {
-                jsonObject.addProperty("Result", "succeed");
-            } else {
-                jsonObject.addProperty("Result", "failed");
-            }
-
-        } catch (SQLException ex) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+        int result = FriendRequestSL.rejectFriendRequest(friendUserName, userName);
+        jsonObject = new JsonObject();
+        if (result > 0) {
+            jsonObject.addProperty("Result", "succeed");
+        } else {
             jsonObject.addProperty("Result", "failed");
         }
+
         String jsonString = gson.toJson(jsonObject);
         writer.println(jsonString);
     }
@@ -268,21 +287,16 @@ public class ClientHandler extends Thread {
     private void handleFriendList(JsonObject jsonObject) {
 
         jsonObject = new JsonObject();
-        try {
-            ArrayList<FriendDTO> requests = FriendSL.getFriendList(userName);
-            if (requests == null || requests.isEmpty()) {
-                jsonObject.addProperty("Result", "failed");
-                System.out.println("Server response failed: client handler " + requests);
-            } else {
-                jsonObject.addProperty("Result", "succeed");
-                jsonObject.add("requests", gson.toJsonTree(requests));
-                System.out.println("Server response succeed: client handler " + requests);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+        ArrayList<FriendDTO> requests = FriendSL.getFriendList(userName);
+        if (requests == null || requests.isEmpty()) {
             jsonObject.addProperty("Result", "failed");
-            System.out.println("Server response failed: client handler no result ");
+            System.out.println("Server response failed: client handler " + requests);
+        } else {
+            jsonObject.addProperty("Result", "succeed");
+            jsonObject.add("requests", gson.toJsonTree(requests));
+            System.out.println("Server response succeed: client handler " + requests);
         }
+
         String jsonString = gson.toJson(jsonObject);
         writer.println(jsonString);
 
@@ -310,126 +324,118 @@ public class ClientHandler extends Thread {
     private void handleRemovingFriend(JsonObject jsonObject) {
 
         JsonObject dataObject = jsonObject.get("data").getAsJsonObject();
-        String friendUserName = dataObject.get("friendFullName").getAsString();
+        String friendUserName = dataObject.get("Friendusername").getAsString();
         System.out.println("Removing friend: " + friendUserName + ", for user: " + userName);
 
-        try {
-            int result = FriendSL.removeFriend(friendUserName, userName);
-            jsonObject = new JsonObject();
-            if (result > 0) {
-                jsonObject.addProperty("Result", "succeed");
-                System.out.println("Server response: succeed ClientHandler" + result);
-            } else {
-                jsonObject.addProperty("Result", "failed");
-                System.out.println("Server response: failed ClientHandler" + result);
-            }
-
-        } catch (SQLException ex) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+        int result = FriendSL.removeFriend(friendUserName, userName);
+        jsonObject = new JsonObject();
+        if (result > 0) {
+            jsonObject.addProperty("Result", "succeed");
+            System.out.println("Server response: succeed ClientHandler" + result);
+        } else {
             jsonObject.addProperty("Result", "failed");
-            System.out.println("Server response: failed 0 ClientHandler");
+            System.out.println("Server response: failed ClientHandler" + result);
         }
+
         String jsonString = gson.toJson(jsonObject);
         writer.println(jsonString);
 
     }
 
     private void handleAddingFriend() {
-        try {
-            String friendName = gson.fromJson(jsonObject.get("data"), String.class);
-            FriendRequestSL.sendFriendRequest(friendName, userName);
-            jsonObject = new JsonObject();
-            jsonObject.addProperty("Result", "succeed");
-            handleAddingNotification(friendName, userName + " sent you a friend request.");
-        } catch (SQLException ex) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
-            jsonObject.addProperty("Result", "failed");
-        }
+        String friendName = gson.fromJson(jsonObject.get("data"), String.class);
+        FriendRequestSL.sendFriendRequest(friendName, userName);
+        jsonObject = new JsonObject();
+        jsonObject.addProperty("Result", "succeed");
+        handleAddingNotification(friendName, userName + " sent you a friend request.");
+
         String jsonString = gson.toJson(jsonObject);
         writer.println(jsonString);
     }
 
     private void handleGettingFriend(JsonObject jsonObject) {
-        try {
-            String friendName = gson.fromJson(jsonObject.get("data"), String.class);
-            ArrayList<FriendDTO> requests = FriendRequestSL.getFriend(friendName, userName);
-            jsonObject = new JsonObject();
-            if (requests == null || requests.isEmpty()) {
-                jsonObject.addProperty("Result", "failed");
-            } else {
-                jsonObject.addProperty("Result", "succeed");
-                jsonObject.add("requests", gson.toJsonTree(requests));
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+        String friendName = gson.fromJson(jsonObject.get("data"), String.class);
+        ArrayList<FriendDTO> requests = FriendRequestSL.getFriendSuggestions(friendName, userName);
+        jsonObject = new JsonObject();
+        if (requests == null || requests.isEmpty()) {
             jsonObject.addProperty("Result", "failed");
+        } else {
+            jsonObject.addProperty("Result", "succeed");
+            jsonObject.add("requests", gson.toJsonTree(requests));
         }
+
         String jsonString = gson.toJson(jsonObject);
         writer.println(jsonString);
     }
 
     private void handleLogout() {
+        jsonObject = new JsonObject();
         String jsonString = gson.toJson(jsonObject);
         writer.println(jsonString);
+
         try {
             clients.removeIf(client -> client.getUserName().equals(userName));
+
             reader.close();
             writer.close();
             notificationWriter.close();
             notificationSocket.close();
             socket.close();
+            LoggerUtil.info("User " + userName + " logged out successfully.");
             stop();
         } catch (IOException ex) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+            LoggerUtil.error("Error while logging out user " + userName + ": " + ex.getMessage());
         }
-
     }
-     private void handleContribution() {
-        try {
-            JsonObject dataObject = jsonObject.get("data").getAsJsonObject();
-            int wishId = dataObject.get("wishId").getAsInt();
-            double contributionAmount = dataObject.get("contribution").getAsDouble();
-            String contributorName = userName;
-            double remaining = dataObject.get("remaining").getAsDouble();
-            String friendUsername = dataObject.get("friendUserName").getAsString();
-            ContributionDTO contribution = new ContributionDTO(wishId, contributorName, contributionAmount, remaining,friendUsername);
-            int result = new ContributionSL().Contribute(contribution);
-            JsonObject responseJson = new JsonObject();
-            if (result == 1) {
-                responseJson.addProperty("Result", "succeed");
-                responseJson.addProperty("Message", "Contribution successful.");
-            } else if (result == -1) {
-                responseJson.addProperty("Result", "failed");
-                responseJson.addProperty("Message", "User not found.");
-            } else if (result == -2) {
-                responseJson.addProperty("Result", "failed");
-                responseJson.addProperty("Message", "Insufficient points.");
-            } else if (result == -3) {
-                responseJson.addProperty("Result", "failed");
-                responseJson.addProperty("Message", "Contribution exceeds remaining amount.");
-            } else {
-                responseJson.addProperty("Result", "failed");
-                responseJson.addProperty("Message", "Failed to contribute.");
+
+    private void handleContribution() {
+        JsonObject dataObject = jsonObject.get("data").getAsJsonObject();
+        int wishId = dataObject.get("wishId").getAsInt();
+        double contributionAmount = dataObject.get("contribution").getAsDouble();
+        String contributorName = userName;
+        double remaining = dataObject.get("remaining").getAsDouble();
+        String friendUsername = dataObject.get("friendUserName").getAsString();
+        ContributionDTO contribution = new ContributionDTO(wishId, contributorName, contributionAmount, remaining, friendUsername);
+        int result = ContributionSL.contribute(contribution);
+        JsonObject responseJson = new JsonObject();
+        if (result == 1) {
+            responseJson.addProperty("Result", "succeed");
+            responseJson.addProperty("Message", "Contribution successful.");
+            handleAddingNotification(friendUsername, userName + " contributed to your wish with amount " + contributionAmount);
+            if (remaining == contributionAmount) {
+                handleAddingNotification(friendUsername, "Check your wish list; one of your wishes is completed and ready.");
             }
-
-            writer.println(responseJson.toString());
-        } catch (SQLException e) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, e);
-            JsonObject errorJson = new JsonObject();
-            errorJson.addProperty("Result", "failed");
-            errorJson.addProperty("Message", "Database error: " + e.getMessage());
-            writer.println(errorJson.toString());
+        } else if (result == -1) {
+            responseJson.addProperty("Result", "failed");
+            responseJson.addProperty("Message", "User not found.");
+        } else if (result == -2) {
+            responseJson.addProperty("Result", "failed");
+            responseJson.addProperty("Message", "Insufficient points.");
+        } else if (result == -3) {
+            responseJson.addProperty("Result", "failed");
+            responseJson.addProperty("Message", "Contribution exceeds remaining amount.");
+        } else {
+            responseJson.addProperty("Result", "failed");
+            responseJson.addProperty("Message", "Failed to contribute.");
         }
+
+        writer.println(responseJson.toString());
+
     }
-    private void handleUserData() {
-     try {
-            UserDTO userData = UserSL.getAllUserData(userName);
-            jsonObject = gson.toJsonTree(userData).getAsJsonObject();
-            String jsonString = gson.toJson(jsonObject);
-            writer.println(jsonString);
 
-        } catch (SQLException ex) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+    private void handleRecharge(JsonObject jsonObject) {
+        JsonObject data = jsonObject.get("data").getAsJsonObject();
+        double points = data.get("points").getAsDouble();
+        String creditCard = data.get("creditCard").getAsString();
+        JsonObject response = new JsonObject();
+        int updateSuccess = UserSL.updateBalance(userName, points);
+        if (updateSuccess > 0) {
+            response.addProperty("Result", "succeed");
+        } else {
+            response.addProperty("Result", "failed");
         }
+
+        writer.println(gson.toJson(response));
+
     }
 }
