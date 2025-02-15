@@ -190,7 +190,7 @@ public class HomeDocumentController implements Initializable {
 
     private void addWish(int productId, String productName, String status) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/wishItem.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/WishItem.fxml"));
             HBox wishItem = loader.load();
 
             CheckBox checkBox = (CheckBox) wishItem.lookup("#checkBox");
