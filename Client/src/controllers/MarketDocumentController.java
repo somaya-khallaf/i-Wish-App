@@ -125,6 +125,7 @@ public class MarketDocumentController implements Initializable {
                         ProductDTO product = (ProductDTO) checkBox.getUserData();
                         JsonObject jsonResponse = serverConnection.sendRequest("addWish", product.getProductId());
                         selectedProducts.add(product);
+                        String result = jsonResponse.get("Result").getAsString();
                         if (result.equals("succeed")) {
                             
                             Utils.showAlert(Alert.AlertType.INFORMATION, "Adding Wish", "Your wish added successfully.");
