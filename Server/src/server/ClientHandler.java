@@ -209,7 +209,7 @@ public class ClientHandler extends Thread {
             int success = WishSL.addWish(productId, userName);
 
             JsonObject response = new JsonObject();
-            if (success > 1) {
+            if (success > 0) {
                 response.addProperty("Result", "succeed");
             } else {
                 response.addProperty("Result", "failed");
@@ -227,8 +227,8 @@ public class ClientHandler extends Thread {
 
     //
     private void handleRemovingWish(JsonObject jsonObject) {
-        Integer[] productId = gson.fromJson(jsonObject.get("data"), Integer[].class);
-        int result = WishSL.removeWish(productId, userName);
+        Integer[] wishId = gson.fromJson(jsonObject.get("data"), Integer[].class);
+        int result = WishSL.removeWish(wishId, userName);
         jsonObject = new JsonObject();
         if (result > 0) {
             jsonObject.addProperty("Result", "succeed");
@@ -264,6 +264,7 @@ public class ClientHandler extends Thread {
         } else {
             jsonObject.addProperty("Result", "failed");
         }
+
 
         String jsonString = gson.toJson(jsonObject);
         writer.println(jsonString);
@@ -331,10 +332,8 @@ public class ClientHandler extends Thread {
         jsonObject = new JsonObject();
         if (result > 0) {
             jsonObject.addProperty("Result", "succeed");
-            System.out.println("Server response: succeed ClientHandler" + result);
         } else {
             jsonObject.addProperty("Result", "failed");
-            System.out.println("Server response: failed ClientHandler" + result);
         }
 
         String jsonString = gson.toJson(jsonObject);
