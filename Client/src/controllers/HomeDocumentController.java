@@ -86,7 +86,7 @@ public class HomeDocumentController implements Initializable {
 
     private void makeWishList() {
         for (WishDTO wish : wishList) {
-            addWish(wish.getProductId(), wish.getProductName(), wish.getStatus());
+            addWish(wish.getWishId(), wish.getProductName(), wish.getStatus());
         }
     }
 
@@ -156,7 +156,7 @@ public class HomeDocumentController implements Initializable {
     }
 
     public void handleDeleteButton(ActionEvent e) throws IOException {
-        ArrayList<Integer> products = new ArrayList<>();
+        ArrayList<Integer> wishId = new ArrayList<>();
         wishList.clear();
         for (Node node : WishListVBox.getChildren()) {
             if (node instanceof HBox) {
@@ -165,13 +165,13 @@ public class HomeDocumentController implements Initializable {
                 Label itemLabel = (Label) hbox.lookup("#itemLabel");
                 Label statusLabel = (Label) hbox.lookup("#status");
                 if (checkBox != null && checkBox.isSelected()) {
-                    products.add((int) hbox.getUserData());
+                    wishId.add((int) hbox.getUserData());
                 } else {
                     wishList.add(new WishDTO((int) hbox.getUserData(), itemLabel.getText(), statusLabel.getText()));
                 }
             }
         }
-        JsonObject jsonResponse = serverConnection.sendRequest("removeWish", products);
+        JsonObject jsonResponse = serverConnection.sendRequest("removeWish", wishId);
         String result = jsonResponse.get("Result").getAsString();
         if (result.equals("succeed")) {
             WishListVBox.getChildren().clear();
@@ -188,15 +188,15 @@ public class HomeDocumentController implements Initializable {
         LoadScenes.loadAddFriendScene();
     }
 
-    private void addWish(int productId, String productName, String status) {
+    private void addWish(int wishId, String productName, String status) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/WishItem.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/wishItem.fxml"));
             HBox wishItem = loader.load();
 
             CheckBox checkBox = (CheckBox) wishItem.lookup("#checkBox");
             Label itemLabel = (Label) wishItem.lookup("#itemLabel");
             Label statusLabel = (Label) wishItem.lookup("#status");
-            wishItem.setUserData(productId);
+            wishItem.setUserData(wishId);
             itemLabel.setText(productName);
             statusLabel.setText(status);
 
