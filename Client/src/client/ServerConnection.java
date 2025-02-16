@@ -21,7 +21,7 @@ public class ServerConnection {
     private BufferedReader reader, notificationReader;
     private Socket mySocket, notificationSocket;
     private Gson gson;
-    private static final int TIMEOUT_MILLISECONDS = 3000; // 10 seconds timeout
+    private static final int TIMEOUT_MILLISECONDS = 10000; // 10 seconds timeout
 
     public ServerConnection() {
         try {
@@ -33,7 +33,6 @@ public class ServerConnection {
             gson = new Gson();
 
             mySocket.setSoTimeout(TIMEOUT_MILLISECONDS);
-            notificationSocket.setSoTimeout(TIMEOUT_MILLISECONDS);
         } catch (IOException ex) {
             Utils.showAlert(Alert.AlertType.ERROR, "Connection Error", "Failed to connect to the server. Please check if the server is running.");
             System.exit(0);
