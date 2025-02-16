@@ -111,7 +111,7 @@ public class FriendRequestController implements Initializable {
 
     @FXML
     private void handleBackAction(ActionEvent event) throws IOException {
-        LoadScenes.loadHomeScene();
+LoadScenes.loadHomeScene();
     }
 
     private void handleAccept(FriendDTO request) {

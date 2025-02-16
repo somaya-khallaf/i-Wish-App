@@ -35,14 +35,14 @@ public class WishDTO {
         this.wishId = wishId;
     }
 
-    public WishDTO(int productId, String productName, String status) {
-        this.productId = productId;
+    public WishDTO(int wishId, String productName, String status) {
+        this.wishId = wishId;
         this.productName = productName;
         this.status = status;
     }
 
-    public WishDTO(int productId, String productName, String status, double price) {
-        this.productId = productId;
+    public WishDTO(int wishId, String productName, String status, double price) {
+        this.wishId = wishId;
         this.productName = productName;
         this.status = status;
         this.price = price;

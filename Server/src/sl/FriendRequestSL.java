@@ -14,44 +14,46 @@ public class FriendRequestSL {
 
     private static final Connection con = DatabaseConnection.getConnection();
 
-    static public void sendFriendRequest(String friendUserName, String userName) {
+    static public int sendFriendRequest(String friendUserName, String userName) {
         if (friendUserName == null || friendUserName.trim().isEmpty()
                 || userName == null || userName.trim().isEmpty()) {
             LoggerUtil.error("Invalid input: friendUsername or userName is null or empty.");
-            return;
+            return 0;
         }
         if (friendUserName.equals(userName)) {
             LoggerUtil.error("Invalid input: Cannot send friend request to yourself.");
-            return;
+            return 0;
         }
 
         if (con == null) {
             LoggerUtil.error("Database connection failed.");
-            return;
+            return 0;
         }
 
         try {
             if (UserDAO.countUsers(userName, con) != 1) {
                 LoggerUtil.error("Invalid input: Sender user does not exist: " + userName);
-                return;
+                return 0;
             }
 
             if (UserDAO.countUsers(friendUserName, con) != 1) {
                 LoggerUtil.error("Invalid input: Friend user does not exist: " + friendUserName);
-                return;
+                return 0;
             }
 
             if (FriendRequestDAO.countFriendRequestsBetween(friendUserName, userName, con) != 0) {
                 LoggerUtil.error("Friend request already exists between " + userName + " and " + friendUserName);
-                return;
+                return 0;
             }
 
             LoggerUtil.info("Sending friend request from " + userName + " to " + friendUserName);
-            FriendRequestDAO.sendFriendRequest(friendUserName, userName, con);
+            int rowInserted = FriendRequestDAO.sendFriendRequest(friendUserName, userName, con);
             LoggerUtil.info("Friend request sent successfully from " + userName + " to " + friendUserName);
+            return rowInserted;
         } catch (SQLException e) {
             LoggerUtil.error("Database error while sending friend request from " + userName + " to " + friendUserName + ". Error: " + e.getMessage());
         }
+        return 0;
     }
 
     static public int rejectFriendRequest(String friendUserName, String userName) {

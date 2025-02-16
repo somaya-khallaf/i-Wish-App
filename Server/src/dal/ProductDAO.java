@@ -21,7 +21,7 @@ public class ProductDAO {
     }
 
     public static int addProductToWishlist(ProductDTO product, Connection con) throws SQLException {
-        String query = "INSERT INTO wishlist (product_id, name, price) VALUES (?, ?, ?)";
+        String query = "INSERT INTO wishlist (product_id, name, price) VALUES (?, ?, ?)";   
         try (PreparedStatement pstmt = con.prepareStatement(query)) {
             pstmt.setInt(1, product.getProductId());
             pstmt.setString(2, product.getProductName());

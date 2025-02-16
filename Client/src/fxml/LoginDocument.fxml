@@ -5,42 +5,40 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="524.0" prefWidth="1000.0" stylesheets="@/css/Recharge.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
-    <children>
-        <Label layoutX="393.0" layoutY="14.0" prefHeight="60.0" prefWidth="290.0" text="Credit Form">
+<AnchorPane prefHeight="524.0" prefWidth="853.0" stylesheets="@/css/login.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox alignment="CENTER" spacing="20.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="100.0">
+         
+         <Label text="Username">
             <font>
-                <Font name="System Bold" size="36.0" />
+               <Font size="24.0" />
             </font>
-        </Label>
-        <Label layoutX="411.0" layoutY="128.0" text="Number of Card">
+         </Label>
+         <TextField fx:id="tfUsername" maxWidth="300.0" prefHeight="35.0" prefWidth="200.0" />
+
+         <Label text="Password">
             <font>
-                <Font size="24.0" />
+               <Font size="24.0" />
             </font>
-        </Label>
-        <TextField fx:id="creditCardField" layoutX="366.0" layoutY="182.0" prefHeight="40.0" prefWidth="269.0" />
-        <TextField fx:id="pointField" layoutX="363.0" layoutY="371.0" prefHeight="40.0" prefWidth="269.0" />
-        <Button fx:id="addBtn" layoutX="366.0" layoutY="435.0" mnemonicParsing="false" onAction="#handleAddAction" prefHeight="43.0" prefWidth="120.0" text="ADD">
-            <font>
-                <Font size="13.0" />
-            </font>
-        </Button>
-        <Button fx:id="cancelBtn" layoutX="512.0" layoutY="435.0" mnemonicParsing="false" onAction="#handleCancelAction" prefHeight="43.0" prefWidth="120.0" text="Cancel">
-            <font>
-                <Font size="13.0" />
-            </font>
-        </Button>
-        <Label layoutX="447.0" layoutY="235.0" text="Password">
-            <font>
-                <Font size="24.0" />
-            </font>
-        </Label>
-        <Label layoutX="464.0" layoutY="336.0" text="Points">
-            <font>
-                <Font size="24.0" />
-            </font>
-        </Label>
-        <PasswordField fx:id="passwordField" layoutX="366.0" layoutY="284.0" prefHeight="40.0" prefWidth="269.0" />
-    </children>
+         </Label>
+         <PasswordField fx:id="tfPassword" maxWidth="300.0" prefHeight="35.0" prefWidth="283.0" />
+
+         <HBox alignment="CENTER" spacing="20.0">
+            <Button fx:id="btLogin" onAction="#handleButtonLogin" prefHeight="43.0" prefWidth="135.0" text="Login">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Button>
+            <Button onAction="#handleButtonSignup" prefHeight="43.0" prefWidth="135.0" text="Sign up">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Button>
+         </HBox>
+      </VBox>
+   </children>
 </AnchorPane>

@@ -30,7 +30,7 @@ public class Utils {
         alert.setContentText(message);
         DialogPane dialogPane = alert.getDialogPane();
         dialogPane.getStylesheets().add(
-                Utils.class.getResource("/css/alert.css").toExternalForm()
+            Utils.class.getResource("/css/alert.css").toExternalForm()
         );
         dialogPane.getStyleClass().add("custom-alert");
 

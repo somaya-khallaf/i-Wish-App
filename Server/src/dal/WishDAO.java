@@ -26,19 +26,19 @@ public class WishDAO {
         }
     }
 
-    static public int removeWish(Integer[] productId, String userName, Connection con) throws SQLException {
+    static public int removeWish(Integer[] wishId, String userName, Connection con) throws SQLException {
         con.setAutoCommit(false);
-        String query = "DELETE FROM wish_table WHERE product_id IN ("
-                + String.join(",", Collections.nCopies(productId.length, "?"))
+        String query = "DELETE FROM wish_table WHERE wish_id IN ("
+                + String.join(",", Collections.nCopies(wishId.length, "?"))
                 + ") AND owner_name = ?";
 
         try (PreparedStatement stmt = con.prepareStatement(query)) {
-            for (int i = 0; i < productId.length; i++) {
-                stmt.setInt(i + 1, productId[i]);
+            for (int i = 0; i < wishId.length; i++) {
+                stmt.setInt(i + 1, wishId[i]);
             }
-            stmt.setString(productId.length + 1, userName);
+            stmt.setString(wishId.length + 1, userName);
             int result = stmt.executeUpdate();
-            if (result != productId.length) {
+            if (result != wishId.length) {
                 con.rollback();
                 return 0;
             }

@@ -23,7 +23,7 @@ public class FriendDAO {
         try {
             con.setAutoCommit(false);
             try (PreparedStatement deleteStmt1 = con.prepareStatement(query);
-                 PreparedStatement deleteStmt2 = con.prepareStatement(query)) {
+                    PreparedStatement deleteStmt2 = con.prepareStatement(query)) {
 
                 deleteStmt1.setString(1, friendUserName);
                 deleteStmt1.setString(2, userName);

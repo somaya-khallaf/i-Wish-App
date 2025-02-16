@@ -14,6 +14,7 @@ import controllers.LoginDocumentController;
 import controllers.MarketDocumentController;
 import controllers.RechargeDocumentController;
 import controllers.SignupDocumentController;
+import controllers.UpdateProfileDocumentController;
 import java.io.IOException;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -30,6 +31,7 @@ public class LoadScenes {
     private static FXMLLoader addFriendSceneLoader;
     private static FXMLLoader rechargeSceneLoader;
     private static FXMLLoader friendWishSceneLoader;
+    private static FXMLLoader updateLoader;
 
     private static SignupDocumentController signupController;
     private static LoginDocumentController loginController;
@@ -40,7 +42,7 @@ public class LoadScenes {
     private static AddFriendDocumentController addFriendController;
     private static RechargeDocumentController rechargeController;
     private static FriendWishDocumentController friendWishController;
-
+    private static UpdateProfileDocumentController updateProfileController;
     private static Stage stage;
     private static LoadScenes loadScene;
     private static ServerConnection serverConnection;
@@ -57,6 +59,14 @@ public class LoadScenes {
         marketController = new MarketDocumentController(serverConnection);
         addFriendController = new AddFriendDocumentController(serverConnection);
         rechargeController = new RechargeDocumentController(serverConnection);
+        updateProfileController = new UpdateProfileDocumentController(serverConnection);
+
+    }
+
+    static public void loadUpdateScene() throws IOException {
+        updateLoader = new FXMLLoader(LoadScenes.class.getResource("/fxml/updateProfileDocument.fxml"));
+        updateLoader.setController(updateProfileController);
+        loadScene(updateLoader);
     }
 
     static public void loadLoginScene() throws IOException {
@@ -125,11 +135,11 @@ public class LoadScenes {
 
     }
 
-    public static  LoadScenes getLoadSceneObj(Stage stage) {
+    public static LoadScenes getLoadSceneObj(Stage stage) {
         if (loadScene == null) {
             loadScene = new LoadScenes(stage);
         }
         return loadScene;
     }
-    ;
+;
 }

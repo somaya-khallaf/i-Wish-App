@@ -13,19 +13,7 @@ public class HomePageDTO {
         this.notificationList = notificationList;
     }
 
-    public HomeUserDTO getHomeUserDTO() {
-        return userDTO;
-    }
-
-    public ArrayList<WishDTO> getWishList() {
-        return wishList;
-    }
-
-    public ArrayList<NotificationDTO> getNotificationList() {
-        return notificationList;
-    }
-
-    public void setHomeUserDTO(HomeUserDTO userDTO) {
+    public void setUserDTO(HomeUserDTO userDTO) {
         this.userDTO = userDTO;
     }
 
@@ -35,6 +23,18 @@ public class HomePageDTO {
 
     public void setNotificationList(ArrayList<NotificationDTO> notificationList) {
         this.notificationList = notificationList;
+    }
+
+    public HomeUserDTO getUserDTO() {
+        return userDTO;
+    }
+
+    public ArrayList<WishDTO> getWishList() {
+        return wishList;
+    }
+
+    public ArrayList<NotificationDTO> getNotificationList() {
+        return notificationList;
     }
 
 }

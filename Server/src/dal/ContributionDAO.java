@@ -48,40 +48,54 @@ public class ContributionDAO {
                 PreparedStatement insertContribution = con.prepareStatement(
                         "INSERT INTO contributions (Contributer_name, wish_id, amount) VALUES (?, ?, ?)"
                 )) {
-            updateBalance.setDouble(1, contributionAmount);
-            updateBalance.setString(2, userName);
-            int balanceUpdated = updateBalance.executeUpdate();
-            if (balanceUpdated == 0) {
-                throw new SQLException("Balance update failed. User may not exist or insufficient funds.");
-            }
+                    updateBalance.setDouble(1, contributionAmount);
+                    updateBalance.setString(2, userName);
+                    int balanceUpdated = updateBalance.executeUpdate();
+                    if (balanceUpdated == 0) {
+                        throw new SQLException("Balance update failed. User may not exist or insufficient funds.");
+                    }
 
-            checkContribution.setString(1, userName);
-            checkContribution.setInt(2, wishId);
-            ResultSet result = checkContribution.executeQuery();
+                    checkContribution.setString(1, userName);
+                    checkContribution.setInt(2, wishId);
+                    ResultSet result = checkContribution.executeQuery();
 
-            if (result.next()) {
-                updateContribution.setDouble(1, contributionAmount);
-                updateContribution.setString(2, userName);
-                updateContribution.setInt(3, wishId);
-                updateContribution.executeUpdate();
-            } else {
-                insertContribution.setString(1, userName);
-                insertContribution.setInt(2, wishId);
-                insertContribution.setDouble(3, contributionAmount);
-                insertContribution.executeUpdate();
-            }
-            con.commit();
-            return 1;
-        } catch (SQLException e) {
-            con.rollback();
-            throw e;
-        } finally {
-            con.setAutoCommit(true);
-        }
+                    if (result.next()) {
+                        updateContribution.setDouble(1, contributionAmount);
+                        updateContribution.setString(2, userName);
+                        updateContribution.setInt(3, wishId);
+                        updateContribution.executeUpdate();
+                    } else {
+                        insertContribution.setString(1, userName);
+                        insertContribution.setInt(2, wishId);
+                        insertContribution.setDouble(3, contributionAmount);
+                        insertContribution.executeUpdate();
+                    }
+                    con.commit();
+                    return 1;
+                } catch (SQLException e) {
+                    con.rollback();
+                    throw e;
+                } finally {
+                    con.setAutoCommit(true);
+                }
     }
 
-    static public ArrayList<ContributionDTO> getAllContribution(UserDTO Contribution) throws SQLException {
-        return new ArrayList<>();
+    public static ArrayList<String> getAllContributors(int wishId, Connection con) throws SQLException {
+        ArrayList<String> contributors = new ArrayList<>();
+
+        String query = "SELECT contributer_name FROM contributions WHERE wish_id = ?";
+
+        try (PreparedStatement stmt = con.prepareStatement(query)) {
+            stmt.setInt(1, wishId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    contributors.add(rs.getString("contributer_name"));
+                }
+            }
+        }
+
+        return contributors;
     }
 
 }

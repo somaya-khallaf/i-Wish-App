@@ -121,12 +121,12 @@ public class HomeDocumentController implements Initializable {
                     JsonObject jsonResponse = serverConnection.getNotifications();
                     NotificationDTO notification = gson.fromJson(jsonResponse, NotificationDTO.class);
                     Platform.runLater(() -> {
-                        notificationListView.getItems().add(0, new Label("⭐" + notification.getNotificationContent() + notification.getNotificationDate()));
+                        notificationListView.getItems().add(0, new Label("⭐" + notification.getNotificationContent()+ " at "+ notification.getNotificationDate()));
                     });
 
                     if (Thread.currentThread().isInterrupted()) {
                         System.out.println("Thread interrupted. Exiting loop.");
-                        break; // Exit the loop
+                        break;
                     }
                 }
                 return null;
@@ -176,6 +176,7 @@ public class HomeDocumentController implements Initializable {
         if (result.equals("succeed")) {
             WishListVBox.getChildren().clear();
             makeWishList();
+            Utils.showAlert(Alert.AlertType.INFORMATION, "Success", "Wish removed successfully.");
         } else {
             Utils.showAlert(Alert.AlertType.ERROR, "delete Failed", "Cannot delete a wish with contributions.");
         }
@@ -190,7 +191,7 @@ public class HomeDocumentController implements Initializable {
 
     private void addWish(int wishId, String productName, String status) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/wishItem.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/WishItem.fxml"));
             HBox wishItem = loader.load();
 
             CheckBox checkBox = (CheckBox) wishItem.lookup("#checkBox");
@@ -232,5 +233,10 @@ public class HomeDocumentController implements Initializable {
         thread.interrupt();
         LoadScenes.loadRechargeScene();
 
+    }
+
+    @FXML
+    private void handleUpdateProfileButton(ActionEvent event) throws IOException {
+        LoadScenes.loadUpdateScene();
     }
 }

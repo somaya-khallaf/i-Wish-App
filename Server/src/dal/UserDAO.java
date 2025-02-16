@@ -83,5 +83,29 @@ public class UserDAO {
 
         }
     }
+   public static int changePassword(String user, String newPassword, Connection con) throws SQLException {
+        String sql = "UPDATE users SET password = ? WHERE username = ?";
+        
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, newPassword); // Ensure this is a hashed password
+            stmt.setString(2, user);
 
+            int updatedRows = stmt.executeUpdate();
+            con.commit();
+
+            if (updatedRows > 0) {
+                LoggerUtil.info("Password updated successfully for user: " + user);
+            } else {
+                LoggerUtil.warning("No user found with username: " + user);
+            }
+
+            return updatedRows;
+        } catch (SQLException e) {
+            con.rollback();
+            LoggerUtil.severe("Error updating password for user " + user + ": " + e.getMessage());
+            throw e;
+        }
+    }
+    
+    
 }

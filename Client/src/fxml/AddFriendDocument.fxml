@@ -9,25 +9,25 @@
 <?import javafx.scene.text.Font?>
 
 <AnchorPane id="AnchorPane" prefHeight="524.0" prefWidth="1000" stylesheets="@/css/AddFriend.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
-    <children>
-        <TableView fx:id="addTable" layoutX="22.0" layoutY="85.0" prefHeight="357.0" prefWidth="950.0">
-            <columns>
-                <TableColumn fx:id="userNameColumn" prefWidth="241.0" text="Username" />
-                <TableColumn fx:id="fullNameColumn" prefWidth="384.0" text="Full Name" />
-                <TableColumn fx:id="addColumn" minWidth="0.0" prefWidth="324.0" text="Send request" />
-            </columns>
-        </TableView>
-        <Label layoutX="33.0" layoutY="24.0" prefHeight="43.0" prefWidth="136.0" text="Find friends">
-            <font>
-                <Font size="24.0" />
-            </font>
-        </Label>
-        <TextField fx:id="searchField" layoutX="473.0" layoutY="24.0" prefHeight="43.0" prefWidth="331.0" promptText="Enter Username or full name" />
-        <Button fx:id="searchBtn" layoutX="822.0" layoutY="24.0" mnemonicParsing="false" onAction="#handleSearchButton" prefHeight="43.0" prefWidth="150.0" text="Search">
-            <font>
-                <Font size="14.0" />
-            </font>
-        </Button>
-        <Button fx:id="backBtn" layoutX="822.0" layoutY="454.0" mnemonicParsing="false" onAction="#handleBackAction" prefHeight="43.0" prefWidth="150.0" text="BACK" />
-    </children>
+   <children>
+      <TableView fx:id="addTable" layoutX="22.0" layoutY="85.0" prefHeight="357.0" prefWidth="950.0">
+        <columns>
+          <TableColumn fx:id="userNameColumn" prefWidth="241.0" text="Username" />
+          <TableColumn fx:id="fullNameColumn" prefWidth="384.0" text="Full Name" />
+            <TableColumn fx:id="addColumn" minWidth="0.0" prefWidth="324.0" text="Send request" />
+        </columns>
+      </TableView>
+      <Label layoutX="33.0" layoutY="24.0" prefHeight="43.0" prefWidth="136.0" text="Find friends">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
+      <TextField fx:id="searchField" layoutX="473.0" layoutY="24.0" prefHeight="43.0" prefWidth="331.0" promptText="Enter Username or full name" />
+      <Button fx:id="searchBtn" layoutX="822.0" layoutY="24.0" mnemonicParsing="false" onAction="#handleSearchButton" prefHeight="43.0" prefWidth="150.0" text="Search">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Button>
+      <Button fx:id="backBtn" layoutX="822.0" layoutY="454.0" mnemonicParsing="false" onAction="#handleBackAction" prefHeight="43.0" prefWidth="150.0" text="BACK" />
+   </children>
 </AnchorPane>

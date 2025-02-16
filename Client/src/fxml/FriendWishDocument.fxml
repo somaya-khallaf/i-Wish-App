@@ -28,11 +28,11 @@
                         <Font size="24.0" />
                     </font>
                 </Label>
-                <Label fx:id="totalPointsLabel" layoutX="866.0" layoutY="11.0" text="Total Point:">
-                    <font>
-                        <Font size="24.0" />
-                    </font>
-                </Label>
+            <Label fx:id="totalPointsLabel" layoutX="866.0" layoutY="11.0" text="Total Point:">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Label>
             </children>
         </AnchorPane>
     </top>
@@ -67,6 +67,6 @@
                 </ScrollPane>
             </children>
         </AnchorPane>
-
+       
     </center>
 </BorderPane>

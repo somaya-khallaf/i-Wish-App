@@ -90,8 +90,8 @@ public class FriendWindowController implements Initializable {
 
                             wishBtn.setOnAction(event -> handleWish(event, item));
                             removeBtn.setOnAction(event -> handleRemove(item));
-                            Region spacer = new Region();
-                            HBox.setHgrow(spacer, Priority.ALWAYS);
+                              Region spacer = new Region();
+                             HBox.setHgrow(spacer, Priority.ALWAYS);
                             hbox.getChildren().addAll(usernameLabel, usernameField, spacer,  wishBtn, removeBtn);
                             setGraphic(hbox);
                         }

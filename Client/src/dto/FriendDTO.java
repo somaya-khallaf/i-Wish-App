@@ -28,5 +28,4 @@ public class FriendDTO {
     public String getFriendfullname() {
         return Friendfullname;
     }
-
 }

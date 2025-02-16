@@ -68,17 +68,17 @@ public class AddFriendDocumentController implements Initializable {
 
     @FXML
     private void handleSearchButton(ActionEvent event) {
-        JsonObject jsonResponse = serverConnection.sendRequest("getFriend", searchField.getText());
-        FriendDTO[] requestsArray = gson.fromJson(jsonResponse.get("requests"), FriendDTO[].class);
-        userList.clear();
-        String result = jsonResponse.get("Result").getAsString();
-        if (result.equals("succeed")) {
-            ArrayList<FriendDTO> suggestions = new ArrayList<>(Arrays.asList(requestsArray));
-            loadUsers(suggestions);
-        }
-        addTable.setItems(userList);
+            JsonObject jsonResponse = serverConnection.sendRequest("getFriend", searchField.getText());
+            FriendDTO[] requestsArray = gson.fromJson(jsonResponse.get("requests"), FriendDTO[].class);
+            userList.clear();
+            String result = jsonResponse.get("Result").getAsString();
+            if (result.equals("succeed")) {
+                ArrayList<FriendDTO> suggestions = new ArrayList<>(Arrays.asList(requestsArray));
+                loadUsers(suggestions);
+            }
+            addTable.setItems(userList);
 
-    }
+        } 
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {

@@ -125,13 +125,14 @@ public class MarketDocumentController implements Initializable {
                         ProductDTO product = (ProductDTO) checkBox.getUserData();
                         JsonObject jsonResponse = serverConnection.sendRequest("addWish", product.getProductId());
                         selectedProducts.add(product);
+                        String result = jsonResponse.get("Result").getAsString();
                         if (result.equals("succeed")) {
-                            
+
                             Utils.showAlert(Alert.AlertType.INFORMATION, "Adding Wish", "Your wish added successfully.");
-                            
+
                         } else {
                             Utils.showAlert(Alert.AlertType.ERROR, "Adding Wish", "Failed to add the product to your wishlist. Please try again.");
-                        }     
+                        }
                         checkBox.setSelected(false);
                     }
                 }
@@ -143,5 +144,7 @@ public class MarketDocumentController implements Initializable {
     @FXML
     private void handleBackButton(ActionEvent event) throws IOException {
         LoadScenes.loadHomeScene();
+    
     }
+
 }

@@ -10,13 +10,13 @@ import javafx.stage.Stage;
 import static javafx.application.Application.launch;
 
 public class Client extends Application {
-
+    
     @Override
     public void start(Stage stage) throws Exception {
         LoadScenes loader = LoadScenes.getLoadSceneObj(stage);
         LoadScenes.loadLoginScene();
         stage.setOnCloseRequest(event -> {
-            // System.out.println("Closing application...");
+           // System.out.println("Closing application...");
         });
 
     }
@@ -25,5 +25,5 @@ public class Client extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-
+    
 }

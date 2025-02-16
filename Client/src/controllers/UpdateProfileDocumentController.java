@@ -5,96 +5,83 @@
  */
 package controllers;
 
+import client.LoadScenes;
 import client.ServerConnection;
 import client.Utils;
-import dto.UserDTO;
+import com.google.gson.JsonObject;
+import dto.LoginDTO;
 import java.io.IOException;
 import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.PasswordField;
 
 /**
- * FXML Controller class
  *
- * @author HP
+ * @author Ahmed
  */
 public class UpdateProfileDocumentController implements Initializable {
 
-    private ServerConnection serverConnection;
     @FXML
-    private Label usernameLable;
+    private PasswordField oldPasswordField;
     @FXML
-    private TextField phoneTextField;
+    private PasswordField newPasswordField;
     @FXML
-    private Label fullnameLable;
+    private PasswordField retypePasswordField;
     @FXML
-    private TextField fullnameTextField;
+    private Button changeButton;
     @FXML
-    private TextField genderTextField;
-    @FXML
-    private TextField dobTextField;
-    @FXML
-    private Button balanceBtn;
-    @FXML
-    private Button updateBtn;
-    @FXML
-    private Button backBtn;
-    UserDTO userdata;
-    @FXML
-    private Button passBtn;
+    private Button cancelButton;
 
-    UpdateProfileDocumentController(ServerConnection serverConnection, UserDTO userdata) {
+    private final ServerConnection serverConnection;
+
+    public UpdateProfileDocumentController(ServerConnection serverConnection) {
         this.serverConnection = serverConnection;
-        this.userdata = userdata;
     }
 
-    /**
-     * Initializes the controller class.
-     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
-        usernameLable.setText(userdata.getUsername());
-        phoneTextField.setText(userdata.getPhone());
-        fullnameTextField.setText(userdata.getFull_name());
-        genderTextField.setText(userdata.getGender());
-        DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-        String dob = df.format(userdata.getDob());
-        dobTextField.setText(dob);
     }
 
     @FXML
-    private void handleRechargeButton(ActionEvent e) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/RechargeDocument.fxml"));
-        RechargeDocumentController fxmlDocumentController = new RechargeDocumentController(serverConnection);
-        loader.setController(fxmlDocumentController);
-        Utils.moveToAntherScene(e, loader);
+    private void handleChangeButton(ActionEvent event) {
+        String oldPassword = oldPasswordField.getText();
+        String newPassword = newPasswordField.getText();
+        String retypePassword = retypePasswordField.getText();
+
+        if (oldPassword.isEmpty() || newPassword.isEmpty() || retypePassword.isEmpty()) {
+            Utils.showAlert(Alert.AlertType.ERROR, "Error", "All fields must be filled.");
+            return;
+        }
+
+        if (!newPassword.equals(retypePassword)) {
+            Utils.showAlert(Alert.AlertType.ERROR, "Error", "New passwords do not match.");
+            return;
+        }
+
+        // Send request to server
+        JsonObject updatePassword = new JsonObject();
+        updatePassword.addProperty("oldPassword", oldPassword);
+        updatePassword.addProperty("newPassword", newPassword);
+        JsonObject jsonResponse = serverConnection.sendRequest("updatePassword", updatePassword);
+        String result = jsonResponse.get("Result").getAsString();
+
+        if (result.equals("succeed")) {
+            Utils.showAlert(Alert.AlertType.INFORMATION, "Success", "Password updated successfully.");
+        } else if (result.equals("failed")) {
+            Utils.showAlert(Alert.AlertType.ERROR, "Error", "Failed to update password. Please try again.");
+        } else {
+            Utils.showAlert(Alert.AlertType.ERROR, "Error", result);
+        }
     }
 
     @FXML
-    private void handleBackAction(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/HomeDocument.fxml"));
-        HomeDocumentController fxmlDocumentController = new HomeDocumentController(serverConnection);
-        loader.setController(fxmlDocumentController);
-        Utils.moveToAntherScene(event, loader);
+    private void handleCancelAction(ActionEvent event) throws IOException {
+        LoadScenes.loadHomeScene();
     }
-
-    @FXML
-    private void handleUpdateButton(ActionEvent e) throws IOException {
-        System.out.println("handleUpdateButton");
-    }
-
-    @FXML
-    private void handleChangePasswdButton(ActionEvent event) {
-        System.out.println("handleChangePasswdButton");
-    }
-
 }

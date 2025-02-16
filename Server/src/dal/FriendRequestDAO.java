@@ -68,7 +68,7 @@ public class FriendRequestDAO {
                 int rowsDeleted = deleteStmt.executeUpdate();
 
                 try (PreparedStatement insertStmt1 = con.prepareStatement(insertQuery);
-                     PreparedStatement insertStmt2 = con.prepareStatement(insertQuery)) {
+                        PreparedStatement insertStmt2 = con.prepareStatement(insertQuery)) {
                     insertStmt1.setString(1, friend);
                     insertStmt1.setString(2, userName);
                     int rowsInserted1 = insertStmt1.executeUpdate();
@@ -120,21 +120,21 @@ public class FriendRequestDAO {
         }
     }
 
-    public static ArrayList<FriendDTO> getAllFriendRequests(String userName, Connection con) throws SQLException {
-        String query = "SELECT FR.USERNAME, U.FULL_NAME FROM friend_requests FR " +
-                "JOIN users U ON FR.USERNAME = U.USERNAME WHERE FR.FRIENDNAME = ?";
-
-        try (PreparedStatement stmt = con.prepareStatement(query)) {
-            stmt.setString(1, userName);
-            try (ResultSet rs = stmt.executeQuery()) {
-                ArrayList<FriendDTO> requests = new ArrayList<>();
-                while (rs.next()) {
-                    requests.add(new FriendDTO(rs.getString("USERNAME"), rs.getString("FULL_NAME")));
-                }
-                return requests;
+   public static ArrayList<FriendDTO> getAllFriendRequests(String userName, Connection con) throws SQLException {
+    String query = "SELECT FR.USERNAME, U.FULL_NAME FROM friend_requests FR " +
+                   "JOIN users U ON FR.USERNAME = U.USERNAME WHERE FR.FRIENDNAME = ?";
+    
+    try (PreparedStatement stmt = con.prepareStatement(query)) {
+        stmt.setString(1, userName);
+        try (ResultSet rs = stmt.executeQuery()) {
+            ArrayList<FriendDTO> requests = new ArrayList<>();
+            while (rs.next()) {
+                requests.add(new FriendDTO(rs.getString("USERNAME"), rs.getString("FULL_NAME")));
             }
+            return requests;
         }
     }
+}
 
 
     public static int countFriendRequestsBetween(String userName, String friendName, Connection con) throws SQLException {

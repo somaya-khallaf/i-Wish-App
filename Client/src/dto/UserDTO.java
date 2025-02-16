@@ -3,15 +3,15 @@ package dto;
 
 import java.sql.Date;
 
-public class UserDTO
+public class UserDTO 
 {
-    private String username;
+    private String username; 
     private String full_name;
     private String password;
     private String gender;
     private String phone;
     private float balance;
-    private Date dob;
+    private Date dob;  
 
     public UserDTO(String username, String full_name, String password, String gender, String phone, float balance, Date dob) {
         this.username = username;

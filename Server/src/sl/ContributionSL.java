@@ -5,14 +5,14 @@ import dal.DatabaseConnection;
 import dal.UserDAO;
 import dal.WishDAO;
 import dto.ContributionDTO;
-import dto.UserDTO;
 import java.sql.Connection;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import server.LoggerUtil;
 
 public class ContributionSL {
+
+    private static final Connection con = DatabaseConnection.getConnection();
 
     public static int contribute(ContributionDTO contribution) {
         if (contribution == null) {
@@ -41,7 +41,6 @@ public class ContributionSL {
         }
 
         try {
-            Connection con = DatabaseConnection.getConnection();
             if (WishDAO.countWishId(contribution.getWish_id(), con) != 1) {
                 LoggerUtil.error("Invalid input: Wish does not exist for wish_id: " + contribution.getWish_id());
                 return 0;
@@ -82,8 +81,17 @@ public class ContributionSL {
         }
     }
 
-    public ArrayList<ContributionDTO> getAllContribution(UserDTO Contribution) throws SQLException {
-        return new ArrayList<>();
+    static public ArrayList<String> getAllContributors(int wishId) {
+        if (wishId <= 0) {
+            LoggerUtil.error("Invalid wishId: " + wishId);
+            return new ArrayList<>();
+        }
+        try {
+            return ContributionDAO.getAllContributors(wishId, con);
+        } catch (SQLException ex) {
+            LoggerUtil.error("Database error while retrieving contributors for wishId: " + wishId + ". Error: " + ex.getMessage());
+            return new ArrayList<>();
+        }
     }
 
 }

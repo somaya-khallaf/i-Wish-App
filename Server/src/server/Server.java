@@ -8,7 +8,9 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.logging.Formatter;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
@@ -18,10 +20,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import server.ClientHandler;
 
-/**
- *
- * @author Ahmed
- */
+
 public class Server extends Application {
      
     @Override
@@ -34,8 +33,9 @@ public class Server extends Application {
     }
 
 
+
     public static void main(String[] args) {
-        launch(args);
+            launch(args);
     }
     
 }

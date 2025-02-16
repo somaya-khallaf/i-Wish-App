@@ -7,6 +7,8 @@ import dto.LoginDTO;
 import dto.UserDTO;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import server.LoggerUtil;
 
 public class UserSL {
@@ -134,6 +136,37 @@ public class UserSL {
             }
         } catch (SQLException e) {
             LoggerUtil.error("SQL error while updating balance for user: " + userName + ". Error: " + e.getMessage());
+            return 0;
+        }
+    }
+
+    static public int updatePassword(String user, String oldPassword, String newPassword) {
+
+        try {
+            LoggerUtil.info("Fetching current password for user: " + user);
+
+            String currentPassword = UserDAO.getPassword(user, con);
+
+            if (currentPassword == null) {
+                LoggerUtil.warning("User not found: " + user);
+                return -1;
+            }
+            if (!currentPassword.equals(oldPassword)) {
+                LoggerUtil.warning("Incorrect old password for user: " + user);
+                return -1;
+            }
+            LoggerUtil.info("Updating password for user: " + user);
+            int rowsUpdated = UserDAO.changePassword(user, newPassword, con);
+
+            if (rowsUpdated > 0) {
+                LoggerUtil.info("Password updated successfully for user: " + user);
+                return 1;
+            } else {
+                LoggerUtil.warning("Password update failed for user: " + user);
+                return 0;
+            }
+        } catch (SQLException ex) {
+            LoggerUtil.error("SQL Exception while updating password for user: " + user + " - " + ex.getMessage());
             return 0;
         }
     }

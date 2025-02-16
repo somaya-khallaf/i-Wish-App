@@ -25,5 +25,5 @@ public class NotificationDTO {
     public Instant getNotificationDate() {
         return notificationDate;
     }
-
+    
 }

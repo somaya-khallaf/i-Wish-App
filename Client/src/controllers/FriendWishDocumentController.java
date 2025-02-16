@@ -13,7 +13,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -137,6 +136,7 @@ public class FriendWishDocumentController implements Initializable {
         requestJson.addProperty("contribution", contribution);
         requestJson.addProperty("remaining", wish.getRemaining());
         requestJson.addProperty("friendUserName", friendUserName);
+        requestJson.addProperty("productName", wish.getProductName());
         JsonObject jsonResponse = serverConnection.sendRequest("contributeToWish", requestJson);
         String result = jsonResponse.get("Result").getAsString();
         if (result.equals("succeed")) {

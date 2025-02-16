@@ -67,7 +67,7 @@ public class WishSL {
         return 0;
     }
 
-    static public ArrayList<WishDTO> getWishList(String userName) throws SQLException {
+    static public ArrayList<WishDTO> getWishList(String userName)  {
         if (userName == null || userName.trim().isEmpty()) {
             LoggerUtil.error("Invalid input: userName is null or empty.");
             return null;
