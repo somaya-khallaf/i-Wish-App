@@ -18,6 +18,14 @@ public class WishDTO {
         return remaining;
     }
 
+    public void setWishId(int wishId) {
+        this.wishId = wishId;
+    }
+
+    public int getWishId() {
+        return wishId;
+    }
+
     public WishDTO(int productId, int wishId, String productName, double price, double remaining, String status) {
         this.productName = productName;
         this.status = status;
@@ -38,14 +46,6 @@ public class WishDTO {
         this.productName = productName;
         this.status = status;
         this.price = price;
-    }
-
-    public void setWishId(int wishId) {
-        this.wishId = wishId;
-    }
-
-    public int getWishId() {
-        return wishId;
     }
 
     public int getProductId() {

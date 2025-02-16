@@ -5,7 +5,10 @@
  */
 package dto;
 
-
+/**
+ *
+ * @author Ahmed
+ */
 public class ProductDTO {
 
     public static ProductDTO add;
