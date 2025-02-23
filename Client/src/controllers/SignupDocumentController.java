@@ -37,10 +37,6 @@ public class SignupDocumentController implements Initializable {
     private ComboBox cbGender;
     @FXML
     private DatePicker tfDOB;
-    @FXML
-    private Button btSignup;
-    @FXML
-    private Button btCancel;
 
     private ServerConnection serverConnection;
 

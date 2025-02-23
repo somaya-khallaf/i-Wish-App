@@ -31,10 +31,6 @@ public class FriendWindowController implements Initializable {
     @FXML
     private ListView<FriendDTO> friendListView;
     private ServerConnection serverConnection;
-    @FXML
-    private Button backBtn;
-    @FXML
-    private Button addBtn;
     private double totalPalance;
 
     public FriendWindowController(ServerConnection serverConnection, double totalPalance) {
@@ -90,9 +86,9 @@ public class FriendWindowController implements Initializable {
 
                             wishBtn.setOnAction(event -> handleWish(event, item));
                             removeBtn.setOnAction(event -> handleRemove(item));
-                              Region spacer = new Region();
-                             HBox.setHgrow(spacer, Priority.ALWAYS);
-                            hbox.getChildren().addAll(usernameLabel, usernameField, spacer,  wishBtn, removeBtn);
+                            Region spacer = new Region();
+                            HBox.setHgrow(spacer, Priority.ALWAYS);
+                            hbox.getChildren().addAll(usernameLabel, usernameField, spacer, wishBtn, removeBtn);
                             setGraphic(hbox);
                         }
                     }

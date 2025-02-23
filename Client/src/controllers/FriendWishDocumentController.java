@@ -22,8 +22,7 @@ public class FriendWishDocumentController implements Initializable {
 
     @FXML
     private Label fName;
-    @FXML
-    private Label dobLabel;
+
     @FXML
     private Label totalPointsLabel;
     @FXML

@@ -48,8 +48,6 @@ public class AddFriendDocumentController implements Initializable {
     private TableColumn<FriendDTO, String> fullNameColumn;
     @FXML
     private TextField searchField;
-    @FXML
-    private Button searchBtn;
     ServerConnection serverConnection;
     private ObservableList<FriendDTO> userList = FXCollections.observableArrayList();
 

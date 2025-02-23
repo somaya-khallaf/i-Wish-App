@@ -14,7 +14,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
 public class LoginDocumentController implements Initializable {
@@ -23,8 +22,6 @@ public class LoginDocumentController implements Initializable {
     private TextField tfUsername;
     @FXML
     private TextField tfPassword;
-    @FXML
-    private Button btLogin;
     ServerConnection serverConnection;
 
     public LoginDocumentController(ServerConnection serverConnection) {
@@ -38,6 +35,7 @@ public class LoginDocumentController implements Initializable {
             JsonObject jsonResponse = serverConnection.sendRequest("login", loginData);
             String result = jsonResponse.get("Result").getAsString();
             if (result.equals("succeed")) {
+                serverConnection.extablishNotificaionConnection();
                 LoadScenes.loadHomeScene();
             } else {
                 Utils.showAlert(Alert.AlertType.ERROR, "Login Failed", "Incorrect username or password.");

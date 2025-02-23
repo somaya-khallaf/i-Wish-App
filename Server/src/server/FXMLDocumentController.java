@@ -16,6 +16,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
@@ -37,29 +39,20 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private TextField tfquery;
     @FXML
-    private Button btExecute;
-    @FXML
-    private Button btCommit;
-    @FXML
     private TextArea tfresult;
     private static final Connection con = DatabaseConnection.getConnection();
-    @FXML
-    private Button btRollback;
     private boolean isServerRunning = false;
+    private static final int THREAD_POOL_SIZE = 10;
+    private ExecutorService threadPool;
 
     @FXML
     public void handleStartAction(ActionEvent event) {
+
         if (!isServerRunning) {
             LoggerUtil.info("Starting the server...");
             try {
                 myServerSocket = new ServerSocket(5005);
                 notificationServerSocket = new ServerSocket(5000);
-                if (!firstRun) {
-                    thread.start();
-                } else if (!isServerRunning) {
-                    thread.resume();
-                }
-                firstRun = true;
             } catch (IOException ex) {
                 LoggerUtil.error("The server failed to start:" + ex.getMessage());
             }
@@ -67,12 +60,26 @@ public class FXMLDocumentController implements Initializable {
             isServerRunning = true;
             LoggerUtil.info("The server has started successfully.");
         }
+        thread = new Thread(new Runnable() {
+            public void run() {
 
+                while (isServerRunning) {
+                    try {
+                        Socket socket = myServerSocket.accept();
+                        threadPool.submit(new ClientHandler(socket, notificationServerSocket));
+                    } catch (IOException ex) {
+                        Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
     }
 
     @FXML
     public void handleStopAction(ActionEvent event) {
-        thread.stop();
+        thread.interrupt();
         isServerRunning = false;
         try {
             if (myServerSocket != null) {
@@ -90,25 +97,7 @@ public class FXMLDocumentController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        thread = new Thread(new Runnable() {
-            public void run() {
-                while (isServerRunning) {
-                    try {
-                        System.out.println("ttt");
-                        Socket socket = myServerSocket.accept();
-                        System.out.println("ttt2");
-
-                        Socket notificationSocket = notificationServerSocket.accept();
-                                                System.out.println("ttt3");
-
-                        new ClientHandler(socket, notificationSocket);
-                    } catch (IOException ex) {
-                        Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }
-        });
-        thread.setDaemon(true);
+        threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
     }
 
     @FXML

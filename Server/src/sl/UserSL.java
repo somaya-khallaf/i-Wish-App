@@ -7,8 +7,6 @@ import dto.LoginDTO;
 import dto.UserDTO;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import server.LoggerUtil;
 
 public class UserSL {

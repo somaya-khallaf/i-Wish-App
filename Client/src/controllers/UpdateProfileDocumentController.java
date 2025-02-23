@@ -9,7 +9,6 @@ import client.LoadScenes;
 import client.ServerConnection;
 import client.Utils;
 import com.google.gson.JsonObject;
-import dto.LoginDTO;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -32,11 +31,6 @@ public class UpdateProfileDocumentController implements Initializable {
     private PasswordField newPasswordField;
     @FXML
     private PasswordField retypePasswordField;
-    @FXML
-    private Button changeButton;
-    @FXML
-    private Button cancelButton;
-
     private final ServerConnection serverConnection;
 
     public UpdateProfileDocumentController(ServerConnection serverConnection) {

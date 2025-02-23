@@ -30,10 +30,6 @@ public class RechargeDocumentController implements Initializable {
     private TextField passwordField;
     @FXML
     private TextField pointField;
-    @FXML
-    private Button addBtn;
-    @FXML
-    private Button cancelBtn;
 
     private ServerConnection serverConnection;
    
@@ -44,7 +40,7 @@ public class RechargeDocumentController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
               UnaryOperator<Change> filter = change -> {
-            if (change.getControlNewText().length() > 16 || !change.getControlNewText().matches("\\d*")) {
+            if (change.getControlNewText().length() >= 16 || !change.getControlNewText().matches("\\d*")) {
                 return null;
             }
             return change;

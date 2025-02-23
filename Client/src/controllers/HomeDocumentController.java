@@ -2,7 +2,6 @@ package controllers;
 
 import client.LoadScenes;
 import javafx.concurrent.Task;
-
 import client.ServerConnection;
 import client.Utils;
 import com.google.gson.Gson;
@@ -22,11 +21,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -44,37 +41,12 @@ public class HomeDocumentController implements Initializable {
     @FXML
     private VBox WishListVBox;
     @FXML
-    private VBox notificationVBox;
-    @FXML
-    private ScrollPane scrollPane;
-    @FXML
     private Label usernameLabel;
     @FXML
     private Label pointsLabel;
     @FXML
-    private Button friendsButton;
-    @FXML
-    private Button addFriendButton;
-    @FXML
-    private Button requestsButton;
-    @FXML
-    private Button logoutButton;
-    @FXML
-    private Button deleteBt;
-    @FXML
-    private Button insertBt;
-    @FXML
-    private HBox wishContainer;
-    @FXML
-    private CheckBox checkBox;
-    @FXML
-    private Label itemLabel;
-    @FXML
-    private Label status;
-    @FXML
     private ListView<Label> notificationListView;
     @FXML
-    private Label notoficationLabel;
     ArrayList<WishDTO> wishList;
     ArrayList<NotificationDTO> notificationList;
     HomeUserDTO homeUserDTO;
@@ -118,10 +90,13 @@ public class HomeDocumentController implements Initializable {
             @Override
             protected Void call() throws Exception {
                 while (true) {
+                    System.out.println("ttt1");
+
                     JsonObject jsonResponse = serverConnection.getNotifications();
+                    System.out.println("ttt2");
                     NotificationDTO notification = gson.fromJson(jsonResponse, NotificationDTO.class);
                     Platform.runLater(() -> {
-                        notificationListView.getItems().add(0, new Label("⭐" + notification.getNotificationContent()+ " at "+ notification.getNotificationDate()));
+                        notificationListView.getItems().add(0, new Label("⭐" + notification.getNotificationContent() + " at " + notification.getNotificationDate()));
                     });
 
                     if (Thread.currentThread().isInterrupted()) {

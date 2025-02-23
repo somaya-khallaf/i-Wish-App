@@ -16,7 +16,6 @@ public class Client extends Application {
         LoadScenes loader = LoadScenes.getLoadSceneObj(stage);
         LoadScenes.loadLoginScene();
         stage.setOnCloseRequest(event -> {
-           // System.out.println("Closing application...");
         });
 
     }

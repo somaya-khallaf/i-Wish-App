@@ -29,8 +29,6 @@ public class FriendRequestController implements Initializable {
     @FXML
     private ListView<FriendDTO> friendRequestList; // Use FriendDTO
     ServerConnection serverConnection;
-    @FXML
-    private Button backBtn;
 
     public FriendRequestController(ServerConnection serverConnection) {
         this.serverConnection = serverConnection;

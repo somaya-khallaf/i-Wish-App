@@ -13,8 +13,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
-import java.sql.SQLException;
+import java.net.ServerSocket;
 import java.time.Instant;
 import java.util.Vector;
 import sl.*;
@@ -28,19 +29,18 @@ public class ClientHandler extends Thread {
     private Gson gson = new Gson();
     private JsonObject jsonObject;
     private JsonObject response;
+    private String myToken = "";
+    ServerSocket notificationServerSocket;
     static Vector<NotificationData> clients = new Vector<NotificationData>();
 
-    public ClientHandler(Socket socket, Socket notificationSocket) {
+    public ClientHandler(Socket socket, ServerSocket notificationServerSocket) {
         try {
             LoggerUtil.info("Connecting to " + socket.getInetAddress() + "...");
             this.socket = socket;
-            this.notificationSocket = notificationSocket;
-            notificationWriter = new PrintWriter(notificationSocket.getOutputStream(), true);
-            notificationReader = new BufferedReader(new InputStreamReader(notificationSocket.getInputStream()));
-            writer = new PrintWriter(socket.getOutputStream(), true);
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            LoggerUtil.info("connected to " + socket.getInetAddress());
-            start();
+            this.notificationServerSocket = notificationServerSocket;
+            writer = new PrintWriter(this.socket.getOutputStream(), true);
+            reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+            LoggerUtil.info("connected to " + this.socket.getInetAddress());
         } catch (IOException ex) {
             LoggerUtil.error("Failed to connect to " + socket.getInetAddress());
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
@@ -48,25 +48,46 @@ public class ClientHandler extends Thread {
     }
 
     public void run() {
+        response = new JsonObject();
         try {
-            while (true) {
-                String jsonString = reader.readLine();
-                if (jsonString == null) {
-                    break;
-                }
-                response = new JsonObject();
-                jsonObject = JsonParser.parseString(jsonString).getAsJsonObject();
-                handleCommand(jsonObject);
+            String jsonString = reader.readLine();
+            if (jsonString == null || jsonString.isEmpty()) {
+                LoggerUtil.error("Empty or null JSON string received from client.");
+                response.addProperty("Result", "Invalid request");
+                writer.println(gson.toJson(response));
+                return;
             }
-        } catch (IOException ex) {
-            LoggerUtil.error("Error reading from client: " + ex.getMessage());
+            jsonObject = JsonParser.parseString(jsonString).getAsJsonObject();
+            myToken = jsonObject.has("token") ? jsonObject.get("token").getAsString() : "";
+            String command = jsonObject.has("command") ? jsonObject.get("command").getAsString() : "";
+
+            if ("login".equals(command) && myToken.isEmpty()) {
+
+                handleCommand(command);
+            } else if (AuthService.validateToken(myToken)) {
+                userName = AuthService.getUsernameFromToken(myToken);
+                handleCommand(command);
+            } else {
+                LoggerUtil.error("Invalid token or unauthorized request. Token: " + myToken);
+                response.addProperty("Result", "Invalid token or unauthorized");
+                writer.println(gson.toJson(response));
+            }
+        } catch (JsonParseException e) {
+            LoggerUtil.error("Error parsing JSON: " + e.getMessage());
+            response.addProperty("Result", "Invalid JSON format");
+            writer.println(gson.toJson(response));
+        } catch (IOException e) {
+            LoggerUtil.error("Error reading from client: " + e.getMessage());
+        } catch (Exception e) {
+            LoggerUtil.error("Unexpected error:main " + e.getMessage());
+            response.addProperty("Result", "Internal server error");
+            writer.println(gson.toJson(response));
         } finally {
             cleanup();
         }
     }
 
-    public void handleCommand(JsonObject jsonObject) {
-        String command = jsonObject.get("command").getAsString();
+    public void handleCommand(String command) {
         switch (command) {
             case "login":
                 handleLogIn();
@@ -134,10 +155,12 @@ public class ClientHandler extends Thread {
         String jsonString = gson.toJson(jsonObject);
         for (NotificationData cl : clients) {
             if (cl.getUserName().equals(receiverName)) {
+                System.out.println(receiverName + " " + userName);
                 cl.getNotificationWriter().println(jsonString);
             }
         }
         NotificationSL.addNotification(receiverName, notification);
+
     }
 
     private void handleHomePage() {
@@ -153,14 +176,24 @@ public class ClientHandler extends Thread {
         LoginDTO loginData = gson.fromJson(jsonObject.get("data"), LoginDTO.class);
         loginData.setUsername(loginData.getUsername().trim());
         if (UserSL.validateLogin(loginData)) {
-            userName = loginData.getUsername();
-            clients.add(new NotificationData(userName, notificationWriter, notificationSocket));
+            myToken = AuthService.generateToken(loginData.getUsername());
+            response.addProperty("token", myToken);
             response.addProperty("Result", "succeed");
 
         } else {
             response.addProperty("Result", "failed");
         }
         writer.println(gson.toJson(response));
+        if (!myToken.isEmpty()) {
+            try {
+                notificationSocket = notificationServerSocket.accept();
+                notificationWriter = new PrintWriter(notificationSocket.getOutputStream(), true);
+                notificationReader = new BufferedReader(new InputStreamReader(notificationSocket.getInputStream()));
+                clients.add(new NotificationData(loginData.getUsername(), notificationWriter, notificationSocket));
+            } catch (IOException ex) {
+                Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     private void handleRegister() {
@@ -382,15 +415,6 @@ public class ClientHandler extends Thread {
             }
             if (writer != null) {
                 writer.close();
-            }
-            if (notificationReader != null) {
-                notificationReader.close();
-            }
-            if (notificationWriter != null) {
-                notificationWriter.close();
-            }
-            if (notificationSocket != null) {
-                notificationSocket.close();
             }
             if (socket != null) {
                 socket.close();

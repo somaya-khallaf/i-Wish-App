@@ -34,13 +34,6 @@ public class MarketDocumentController implements Initializable {
     private TextField searchBox;
     @FXML
     private VBox marketListContainer;
-    @FXML
-    private ScrollPane scrollPane;
-    @FXML
-    private Button buttonAdd;
-    @FXML
-    private Button backButton;
-
     private List<ProductDTO> allMarkets = new ArrayList<>();
 
     public MarketDocumentController(ServerConnection serverConnection) {
